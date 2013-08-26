@@ -1,10 +1,12 @@
-package balkondeuralpha.freerunner;
+package balkondeuralpha.freerunner.moves;
 
+import balkondeuralpha.freerunner.Animation;
+import balkondeuralpha.freerunner.FreerunPlayer;
 import net.minecraft.entity.player.EntityPlayer;
 
-public abstract class FR_Move
+public abstract class Move
 {
-	protected FR_Move(FR_FreerunPlayer freerunhandler)
+	protected Move(FreerunPlayer freerunhandler)
 	{
 		freerunEngine = freerunhandler;
 		lookDirection = 0;
@@ -58,7 +60,7 @@ public abstract class FR_Move
 	
 	public final void performMove(EntityPlayer entityplayer, int lookdirection)
 	{
-		if (FR_Move.paused)
+		if (Move.paused)
 		{
 			return;
 		}
@@ -97,16 +99,16 @@ public abstract class FR_Move
 	
 	protected abstract float getAnimationProgress();
 	
-	public final FR_Animation getAnimation()
+	public final Animation getAnimation()
 	{
 		return animation;
 	}
 	
 	public double				startPosX,startPosY,startPosZ;
-	protected FR_Animation		animation;
+	protected Animation		animation;
 	public float				animProgress,prevAnimProgress;
 	protected int				lookDirection;
-	protected FR_FreerunPlayer	freerunEngine;
+	protected FreerunPlayer	freerunEngine;
 	protected EntityPlayer			player;
 	protected double			nextMotionX,nextMotionY,nextMotionZ;
 	protected int				blockings;
@@ -114,13 +116,13 @@ public abstract class FR_Move
 	
 	public static void addMovementPause(int ticks)
 	{
-		FR_Move.paused = true;
-		FR_Move.pauseTimer = ticks;
+		Move.paused = true;
+		Move.pauseTimer = ticks;
 	}
 	
-	public static void onUpdate(FR_FreerunPlayer freerunengine)
+	public static void onUpdate(FreerunPlayer freerunengine)
 	{
-		if (!FR_Move.paused)
+		if (!Move.paused)
 		{
 			if (freerunengine.move != null)
 			{
@@ -128,44 +130,44 @@ public abstract class FR_Move
 			}
 		}
 		
-		if (FR_Move.pauseTimer > 0)
+		if (Move.pauseTimer > 0)
 		{
-			FR_Move.pauseTimer--;
+			Move.pauseTimer--;
 		} else
 		{
-			FR_Move.paused = false;
+			Move.paused = false;
 		}
 	}
 	
-	public static void addAllMoves(FR_FreerunPlayer freerunengine)
+	public static void addAllMoves(FreerunPlayer freerunengine)
 	{
-		FR_Move.climbUp = new FR_MoveClimb(freerunengine, FR_MoveClimb.DIRECTION_UP, 0.8F);
-		FR_Move.climbDown = new FR_MoveClimb(freerunengine, FR_MoveClimb.DIRECTION_DOWN, 1.0F);
-		FR_Move.climbLeft = new FR_MoveClimb(freerunengine, FR_MoveClimb.DIRECTION_LEFT, 1.0F);
-		FR_Move.climbRight = new FR_MoveClimb(freerunengine, FR_MoveClimb.DIRECTION_RIGHT, 1.0F);
+		Move.climbUp = new MoveClimb(freerunengine, MoveClimb.DIRECTION_UP, 0.8F);
+		Move.climbDown = new MoveClimb(freerunengine, MoveClimb.DIRECTION_DOWN, 1.0F);
+		Move.climbLeft = new MoveClimb(freerunengine, MoveClimb.DIRECTION_LEFT, 1.0F);
+		Move.climbRight = new MoveClimb(freerunengine, MoveClimb.DIRECTION_RIGHT, 1.0F);
 		
-		FR_Move.climbAroundLeft = new FR_MoveAroundEdge(freerunengine, FR_MoveClimb.DIRECTION_LEFT, 2.0F);
-		FR_Move.climbAroundRight = new FR_MoveAroundEdge(freerunengine, FR_MoveClimb.DIRECTION_RIGHT, 2.0F);
+		Move.climbAroundLeft = new MoveAroundEdge(freerunengine, MoveClimb.DIRECTION_LEFT, 2.0F);
+		Move.climbAroundRight = new MoveAroundEdge(freerunengine, MoveClimb.DIRECTION_RIGHT, 2.0F);
 		
-		FR_Move.ejectUp = new FR_MoveEject(freerunengine, FR_MoveClimb.DIRECTION_UP);
-		FR_Move.ejectBack = new FR_MoveEject(freerunengine, FR_MoveClimb.DIRECTION_DOWN);
-		FR_Move.ejectLeft = new FR_MoveEject(freerunengine, FR_MoveClimb.DIRECTION_LEFT);
-		FR_Move.ejectRight = new FR_MoveEject(freerunengine, FR_MoveClimb.DIRECTION_RIGHT);
+		Move.ejectUp = new MoveEject(freerunengine, MoveClimb.DIRECTION_UP);
+		Move.ejectBack = new MoveEject(freerunengine, MoveClimb.DIRECTION_DOWN);
+		Move.ejectLeft = new MoveEject(freerunengine, MoveClimb.DIRECTION_LEFT);
+		Move.ejectRight = new MoveEject(freerunengine, MoveClimb.DIRECTION_RIGHT);
 		
-		FR_Move.wallrun = new FR_MoveWallrun(freerunengine);
-		FR_Move.pushUp = new FR_MovePushUp(freerunengine);
-		FR_Move.upBehind = new FR_MoveUpBehind(freerunengine);
+		Move.wallrun = new MoveWallrun(freerunengine);
+		Move.pushUp = new MovePushUp(freerunengine);
+		Move.upBehind = new MoveUpBehind(freerunengine);
 		
-		FR_Move.roll = new FR_MoveRoll(freerunengine);
+		Move.roll = new MoveRoll(freerunengine);
 	}
 	
 	private static int				pauseTimer;
 	protected static boolean		paused;
-	public static FR_MoveWallrun	wallrun;
-	public static FR_MoveClimb		climbUp,climbDown,climbLeft,climbRight;
-	public static FR_MoveClimb		climbAroundLeft,climbAroundRight;
-	public static FR_MoveEject		ejectUp,ejectBack,ejectLeft,ejectRight;
-	public static FR_MovePushUp		pushUp;
-	public static FR_MoveUpBehind	upBehind;
-	public static FR_MoveRoll		roll;
+	public static MoveWallrun	wallrun;
+	public static MoveClimb		climbUp,climbDown,climbLeft,climbRight;
+	public static MoveClimb		climbAroundLeft,climbAroundRight;
+	public static MoveEject		ejectUp,ejectBack,ejectLeft,ejectRight;
+	public static MovePushUp		pushUp;
+	public static MoveUpBehind	upBehind;
+	public static MoveRoll		roll;
 }

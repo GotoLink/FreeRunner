@@ -1,15 +1,14 @@
 package balkondeuralpha.freerunner;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import balkondeuralpha.freerunner.moves.Move;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.entity.Entity;
-import net.minecraft.src.RenderPlayerAPI;
-import net.minecraft.src.RenderPlayerBase;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
-public class FR_Animator extends RenderPlayerBase
+public class Animator extends RenderPlayerBase
 {
-	public FR_Animator(RenderPlayerAPI renderplayerapi)
+	public Animator(RenderPlayerAPI renderplayerapi)
 	{
 		super(renderplayerapi);
 		freerun = null;
@@ -17,7 +16,7 @@ public class FR_Animator extends RenderPlayerBase
 		FreeRun.instance.setAnimator(this);
 	}
 	
-	public void setFreerunPlayer(FR_FreerunPlayer freerun)
+	public void setFreerunPlayer(FreerunPlayer freerun)
 	{
 		this.freerun = freerun;
 	}
@@ -33,10 +32,10 @@ public class FR_Animator extends RenderPlayerBase
 		{
 			return;
 		}
-		FR_Move move = freerun.move;
+		Move move = freerun.move;
 		if (move != null)
 		{
-			FR_Animation anim = freerun.move.getAnimation();
+			Animation anim = freerun.move.getAnimation();
 			if (anim != null)
 			{
 				System.out.println(renderTime);
@@ -45,6 +44,6 @@ public class FR_Animator extends RenderPlayerBase
 		}
 	}
 	
-	private FR_FreerunPlayer	freerun;
+	private FreerunPlayer	freerun;
 	private float				renderTime;
 }

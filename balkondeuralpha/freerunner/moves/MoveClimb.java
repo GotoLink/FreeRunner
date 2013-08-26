@@ -1,8 +1,10 @@
-package balkondeuralpha.freerunner;
+package balkondeuralpha.freerunner.moves;
 
-public class FR_MoveClimb extends FR_Move
+import balkondeuralpha.freerunner.FreerunPlayer;
+
+public class MoveClimb extends Move
 {
-	protected FR_MoveClimb(FR_FreerunPlayer freerunhandler, int direction, float distance)
+	protected MoveClimb(FreerunPlayer freerunhandler, int direction, float distance)
 	{
 		super(freerunhandler);
 		this.direction = direction;
@@ -13,7 +15,7 @@ public class FR_MoveClimb extends FR_Move
 	public void updateMove()
 	{
 		super.updateMove();
-		if (direction == FR_MoveClimb.DIRECTION_UP)
+		if (direction == MoveClimb.DIRECTION_UP)
 		{
 			if (player.posY - startPosY <= distance)
 			{
@@ -23,7 +25,7 @@ public class FR_MoveClimb extends FR_Move
 			{
 				moveDone();
 			}
-		} else if (direction == FR_MoveClimb.DIRECTION_DOWN)
+		} else if (direction == MoveClimb.DIRECTION_DOWN)
 		{
 			if (player.posY - startPosY >= -distance)
 			{
@@ -33,9 +35,9 @@ public class FR_MoveClimb extends FR_Move
 			{
 				moveDone();
 			}
-		} else if (direction == FR_MoveClimb.DIRECTION_LEFT)
+		} else if (direction == MoveClimb.DIRECTION_LEFT)
 		{
-			if (lookDirection == FR_FreerunPlayer.LOOK_WEST)
+			if (lookDirection == FreerunPlayer.LOOK_WEST)
 			{
 				if (player.posX - startPosX <= distance)
 				{
@@ -45,7 +47,7 @@ public class FR_MoveClimb extends FR_Move
 				{
 					moveDone();
 				}
-			} else if (lookDirection == FR_FreerunPlayer.LOOK_NORTH)
+			} else if (lookDirection == FreerunPlayer.LOOK_NORTH)
 			{
 				if (player.posZ - startPosZ <= distance)
 				{
@@ -55,7 +57,7 @@ public class FR_MoveClimb extends FR_Move
 				{
 					moveDone();
 				}
-			} else if (lookDirection == FR_FreerunPlayer.LOOK_EAST)
+			} else if (lookDirection == FreerunPlayer.LOOK_EAST)
 			{
 				if (player.posX - startPosX >= -distance)
 				{
@@ -65,7 +67,7 @@ public class FR_MoveClimb extends FR_Move
 				{
 					moveDone();
 				}
-			} else if (lookDirection == FR_FreerunPlayer.LOOK_SOUTH)
+			} else if (lookDirection == FreerunPlayer.LOOK_SOUTH)
 			{
 				if (player.posZ - startPosZ >= -distance)
 				{
@@ -76,9 +78,9 @@ public class FR_MoveClimb extends FR_Move
 					moveDone();
 				}
 			}
-		} else if (direction == FR_MoveClimb.DIRECTION_RIGHT)
+		} else if (direction == MoveClimb.DIRECTION_RIGHT)
 		{
-			if (lookDirection == FR_FreerunPlayer.LOOK_WEST)
+			if (lookDirection == FreerunPlayer.LOOK_WEST)
 			{
 				if (player.posX - startPosX >= -distance)
 				{
@@ -88,7 +90,7 @@ public class FR_MoveClimb extends FR_Move
 				{
 					moveDone();
 				}
-			} else if (lookDirection == FR_FreerunPlayer.LOOK_NORTH)
+			} else if (lookDirection == FreerunPlayer.LOOK_NORTH)
 			{
 				if (player.posZ - startPosZ >= -distance)
 				{
@@ -98,7 +100,7 @@ public class FR_MoveClimb extends FR_Move
 				{
 					moveDone();
 				}
-			} else if (lookDirection == FR_FreerunPlayer.LOOK_EAST)
+			} else if (lookDirection == FreerunPlayer.LOOK_EAST)
 			{
 				if (player.posX - startPosX <= distance)
 				{
@@ -108,7 +110,7 @@ public class FR_MoveClimb extends FR_Move
 				{
 					moveDone();
 				}
-			} else if (lookDirection == FR_FreerunPlayer.LOOK_SOUTH)
+			} else if (lookDirection == FreerunPlayer.LOOK_SOUTH)
 			{
 				if (player.posZ - startPosZ <= distance)
 				{
@@ -147,7 +149,7 @@ public class FR_MoveClimb extends FR_Move
 	public void moveDone()
 	{
 		int i = direction > 2 ? 5 : 10;
-		FR_Move.addMovementPause(i);
+		Move.addMovementPause(i);
 		super.moveDone();
 	}
 	

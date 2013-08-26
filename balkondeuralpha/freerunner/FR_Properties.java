@@ -31,7 +31,7 @@ public class FR_Properties
 	{
 		try
 		{
-			String path = Minecraft.getMinecraftDir().getCanonicalPath().replace('\\', '/')+"/config/freerun.properties";
+			String path = Minecraft.getMinecraft().mcDataDir.getCanonicalPath().replace('\\', '/')+"/config/freerun.properties";
 			System.out.println(path);
 			FileInputStream f = new FileInputStream(path);
 			props.load(f);
@@ -119,8 +119,8 @@ public class FR_Properties
 		FMLLog.getLogger().info("[Freerunner's Mod] Creating new properties file with standard values.\n");
 		try
 		{
-			String folderPath = Minecraft.getMinecraftDir().getCanonicalPath().replace('\\', '/')+"/config";
-			String propsPath = Minecraft.getMinecraftDir().getCanonicalPath().replace('\\', '/')+"/config/freerun.properties";
+			String folderPath = Minecraft.getMinecraft().mcDataDir.getCanonicalPath().replace('\\', '/')+"/config";
+			String propsPath = Minecraft.getMinecraft().mcDataDir.getCanonicalPath().replace('\\', '/')+"/config/freerun.properties";
 			new File(folderPath).mkdirs();
 			FileOutputStream f = new FileOutputStream(propsPath);
 			

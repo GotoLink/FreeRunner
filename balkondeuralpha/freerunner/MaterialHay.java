@@ -3,9 +3,9 @@ package balkondeuralpha.freerunner;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
 
-public class FR_MaterialHay extends Material
+public class MaterialHay extends Material
 {
-	public FR_MaterialHay(MapColor mapcolor)
+	public MaterialHay(MapColor mapcolor)
 	{
 		super(mapcolor);
 		this.setBurning();

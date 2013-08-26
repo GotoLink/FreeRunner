@@ -1,11 +1,13 @@
-package balkondeuralpha.freerunner;
+package balkondeuralpha.freerunner.moves;
 
+import balkondeuralpha.freerunner.FreeRun;
+import balkondeuralpha.freerunner.FreerunPlayer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.MathHelper;
 
-public class FR_MoveEject extends FR_Move
+public class MoveEject extends Move
 {
-	protected FR_MoveEject(FR_FreerunPlayer freerunhandler, int direction)
+	protected MoveEject(FreerunPlayer freerunhandler, int direction)
 	{
 		super(freerunhandler);
 		this.direction = direction;
@@ -20,12 +22,12 @@ public class FR_MoveEject extends FR_Move
 		{
 			return;
 		}
-		if (direction != FR_MoveClimb.DIRECTION_UP)
+		if (direction != MoveClimb.DIRECTION_UP)
 		{
-			if (direction == FR_MoveClimb.DIRECTION_LEFT)
+			if (direction == MoveClimb.DIRECTION_LEFT)
 			{
 				player.rotationYaw -= 90F;
-			} else if (direction == FR_MoveClimb.DIRECTION_RIGHT)
+			} else if (direction == MoveClimb.DIRECTION_RIGHT)
 			{
 				player.rotationYaw += 90F;
 			} else
@@ -52,7 +54,7 @@ public class FR_MoveEject extends FR_Move
 				player.addVelocity(0D, 0.5D, 0D);
 			}
 		}
-		FR_Move.addMovementPause(15);
+		Move.addMovementPause(15);
 		moveDone();
 	}
 	

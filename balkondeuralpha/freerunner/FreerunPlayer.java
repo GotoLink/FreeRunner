@@ -7,8 +7,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.src.ModLoader;
-import net.minecraft.src.PlayerAPI;
-import net.minecraft.src.PlayerBase;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumMovingObjectType;
@@ -18,10 +16,14 @@ import net.minecraft.util.Vec3;
 
 import org.lwjgl.input.Keyboard;
 
-public class FR_FreerunPlayer extends PlayerBase
+import balkondeuralpha.freerunner.moves.Move;
+import balkondeuralpha.freerunner.moves.MoveAroundEdge;
+import balkondeuralpha.freerunner.moves.MoveWallrun;
+
+public class FreerunPlayer extends PlayerBase
 {
-	public FR_Move				move;
-	public FR_Situation			situation;
+	public Move				move;
+	public Situation			situation;
 	public double				startPosY,startPosX,startPosZ;
 	private float				startRollingYaw,startRollingPitch;
 	public MovingObjectPosition	objectMouseOver;
@@ -31,14 +33,14 @@ public class FR_FreerunPlayer extends PlayerBase
 	private float				prevRollAnimation;
 	private boolean				freerunKeyEvent;
 	
-	public FR_FreerunPlayer(PlayerAPI playerapi)
+	public FreerunPlayer(PlayerAPI playerapi)
 	{
 		super(playerapi);
 		FreeRun.instance.setFreerunPlayer(this);
 		climbableBlocks = new ArrayList<Integer>();
 		climbableInside = new ArrayList<Integer>();
 		setMove(null);
-		FR_Move.addAllMoves(this);
+		Move.addAllMoves(this);
 		freerunKeyEvent = false;
 		freeRunning = false;
 		horizontalSpeed = 0D;
@@ -65,16 +67,16 @@ public class FR_FreerunPlayer extends PlayerBase
 		climbableBlocks.add(Block.stairCompactPlanks.blockID);
 		climbableBlocks.add(Block.chest.blockID);
 		climbableBlocks.add(Block.workbench.blockID);
-		climbableBlocks.add(Block.stoneOvenIdle.blockID);
-		climbableBlocks.add(Block.stoneOvenActive.blockID);
+		climbableBlocks.add(Block.furnaceIdle.blockID);
+		climbableBlocks.add(Block.furnaceActive.blockID);
 		climbableBlocks.add(Block.signWall.blockID);
 		climbableBlocks.add(Block.signPost.blockID);
 		climbableBlocks.add(Block.doorWood.blockID);
-		climbableBlocks.add(Block.doorSteel.blockID);
+		climbableBlocks.add(Block.doorIron.blockID);
 		climbableBlocks.add(Block.pistonBase.blockID);
 		climbableBlocks.add(Block.pistonStickyBase.blockID);
 		climbableBlocks.add(Block.pistonExtension.blockID);
-		climbableBlocks.add(Block.stairCompactCobblestone.blockID);
+		climbableBlocks.add(Block.stairsCobblestone.blockID);
 		climbableBlocks.add(Block.jukebox.blockID);
 		climbableBlocks.add(Block.pumpkin.blockID);
 		climbableBlocks.add(Block.pumpkinLantern.blockID);
@@ -82,7 +84,7 @@ public class FR_FreerunPlayer extends PlayerBase
 		climbableBlocks.add(Block.trapdoor.blockID);
 		climbableBlocks.add(Block.netherFence.blockID);
 		climbableBlocks.add(Block.stairsNetherBrick.blockID);
-		climbableBlocks.add(Block.stairsStoneBrickSmooth.blockID);
+		climbableBlocks.add(Block.stairsStoneBrick.blockID);
 		climbableBlocks.add(Block.stairsBrick.blockID);
 		climbableBlocks.add(Block.fenceGate.blockID);
 		climbableBlocks.add(Block.lockedChest.blockID);
@@ -113,7 +115,7 @@ public class FR_FreerunPlayer extends PlayerBase
 	{
 		objectMouseOver = ModLoader.getMinecraftInstance().objectMouseOver;
 		
-		situation = FR_Situation.getSituation(player, getLookDirection(), player.worldObj, objectMouseOver);
+		situation = Situation.getSituation(player, getLookDirection(), player.worldObj, objectMouseOver);
 		horizontalSpeed = Math.sqrt(player.motionX * player.motionX + player.motionZ * player.motionZ);
 		
 		prevRollAnimation = rollAnimation;
@@ -172,7 +174,7 @@ public class FR_FreerunPlayer extends PlayerBase
 	
 	private void handleMoves()
 	{
-		FR_Move.onUpdate(this);
+		Move.onUpdate(this);
 	}
 	
 	private void handleStats(double d, double d1, double d2)
@@ -224,7 +226,7 @@ public class FR_FreerunPlayer extends PlayerBase
 				player.fallDistance = 0.0F;
 				player.motionX = player.motionY = player.motionZ = 0D;
 				
-				if (!situation.canHangStill() && !(move instanceof FR_MoveAroundEdge))
+				if (!situation.canHangStill() && !(move instanceof MoveAroundEdge))
 				{
 					//mc.ingameGUI.addChatMessage("falling! noooo!");
 					isClimbing = false;
@@ -241,27 +243,27 @@ public class FR_FreerunPlayer extends PlayerBase
 						float y = situation.canPushUp();
 						if (situation.canJumpUpBehind())
 						{
-							FR_Move.upBehind.performMove(player, lookdirection);
+							Move.upBehind.performMove(player, lookdirection);
 							player.addExhaustion(0.3F);
 						} else if (situation.canClimbUp())
 						{
-							FR_Move.climbUp.performMove(player, lookdirection);
+							Move.climbUp.performMove(player, lookdirection);
 						} else if (y != 0)
 						{
-							FR_Move.pushUp.performMove(player, lookdirection, y);
+							Move.pushUp.performMove(player, lookdirection, y);
 							player.addExhaustion(0.3F);
 						}
 					} else if (isMovingBackwards())
 					{
 						if (situation.canClimbDown())
 						{
-							FR_Move.climbDown.performMove(player, lookdirection);
+							Move.climbDown.performMove(player, lookdirection);
 						}
 					} else if (isMovingLeft())
 					{
 						if (situation.canClimbLeft())
 						{
-							FR_Move.climbLeft.performMove(player, lookdirection);
+							Move.climbLeft.performMove(player, lookdirection);
 						}/* else if (situation.canClimbAroundEdgeLeft())
 							{
 							FR_Move.climbAroundLeft.performMove(player, lookdirection);
@@ -270,7 +272,7 @@ public class FR_FreerunPlayer extends PlayerBase
 					{
 						if (situation.canClimbRight())
 						{
-							FR_Move.climbRight.performMove(player, lookdirection);
+							Move.climbRight.performMove(player, lookdirection);
 						}/* else if (situation.canClimbAroundEdgeRight())
 							{
 							FR_Move.climbAroundRight.performMove(player, lookdirection);
@@ -282,19 +284,19 @@ public class FR_FreerunPlayer extends PlayerBase
 				{
 					if (isMovingForwards() && !isWallrunning())
 					{
-						FR_Move.ejectUp.performMove(player, situation.lookDirection);
+						Move.ejectUp.performMove(player, situation.lookDirection);
 						player.addExhaustion(0.3F);
 					} else if (isMovingLeft())
 					{
-						FR_Move.ejectLeft.performMove(player, situation.lookDirection);
+						Move.ejectLeft.performMove(player, situation.lookDirection);
 						player.addExhaustion(0.3F);
 					} else if (isMovingRight())
 					{
-						FR_Move.ejectRight.performMove(player, situation.lookDirection);
+						Move.ejectRight.performMove(player, situation.lookDirection);
 						player.addExhaustion(0.3F);
 					} else
 					{
-						FR_Move.ejectBack.performMove(player, situation.lookDirection);
+						Move.ejectBack.performMove(player, situation.lookDirection);
 						player.addExhaustion(0.3F);
 					}
 				}
@@ -314,15 +316,15 @@ public class FR_FreerunPlayer extends PlayerBase
 						stopMove();
 						if (isMovingLeft())
 						{
-							FR_Move.ejectLeft.performMove(player, situation.lookDirection, 0.8F);
+							Move.ejectLeft.performMove(player, situation.lookDirection, 0.8F);
 							player.addExhaustion(0.3F);
 						} else if (isMovingRight())
 						{
-							FR_Move.ejectRight.performMove(player, situation.lookDirection, 0.8F);
+							Move.ejectRight.performMove(player, situation.lookDirection, 0.8F);
 							player.addExhaustion(0.3F);
 						} else
 						{
-							FR_Move.ejectBack.performMove(player, situation.lookDirection, 0.8F);
+							Move.ejectBack.performMove(player, situation.lookDirection, 0.8F);
 							player.addExhaustion(0.3F);
 						}
 					}
@@ -352,7 +354,7 @@ public class FR_FreerunPlayer extends PlayerBase
 						player.realJump();
 					} else if (j > 1 || canWallrun())
 					{
-						FR_Move.wallrun.performMove(player, getLookDirection(), 1.8F);
+						Move.wallrun.performMove(player, getLookDirection(), 1.8F);
 						player.addExhaustion(0.8F);
 					}
 				}
@@ -418,7 +420,7 @@ public class FR_FreerunPlayer extends PlayerBase
 	
 	public boolean isWallrunning()
 	{
-		return move instanceof FR_MoveWallrun;
+		return move instanceof MoveWallrun;
 	}
 	
 	public boolean isRolling()
@@ -822,7 +824,7 @@ public class FR_FreerunPlayer extends PlayerBase
 		}
 	}
 	
-	protected void setMove(FR_Move move)
+	public void setMove(Move move)
 	{
 		this.move = move;
 	}

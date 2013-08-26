@@ -9,9 +9,9 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
-public class FR_Situation
+public class Situation
 {
-	private FR_Situation(double x, double y, double z, int lookdirection, World world, MovingObjectPosition objectmouseover)
+	private Situation(double x, double y, double z, int lookdirection, World world, MovingObjectPosition objectmouseover)
 	{
 		nextPosX = posX = MathHelper.floor_double(x);
 		nextPosY = posY = (int) Math.ceil(y);
@@ -58,16 +58,16 @@ public class FR_Situation
 		
 		boolean flag = hasAirAbove(x, y, z, 2);
 		
-		if (lookDirection == FR_FreerunPlayer.LOOK_WEST)
+		if (lookDirection == FreerunPlayer.LOOK_WEST)
 		{
 			z++;
-		} else if (lookDirection == FR_FreerunPlayer.LOOK_NORTH)
+		} else if (lookDirection == FreerunPlayer.LOOK_NORTH)
 		{
 			x--;
-		} else if (lookDirection == FR_FreerunPlayer.LOOK_EAST)
+		} else if (lookDirection == FreerunPlayer.LOOK_EAST)
 		{
 			z--;
-		} else if (lookDirection == FR_FreerunPlayer.LOOK_SOUTH)
+		} else if (lookDirection == FreerunPlayer.LOOK_SOUTH)
 		{
 			x++;
 		}
@@ -103,25 +103,25 @@ public class FR_Situation
 		boolean flag = false;
 		int i = lookDirection;
 		lookDirection = (lookDirection + 1) % 4;
-		if (i == FR_FreerunPlayer.LOOK_WEST)
+		if (i == FreerunPlayer.LOOK_WEST)
 		{
 			nextPosX = posX + 1;
 			nextPosZ = posZ + 1;
 			flag = hasEdgeOnLocation(nextPosX, posY, nextPosZ);
 			
-		} else if (i == FR_FreerunPlayer.LOOK_NORTH)
+		} else if (i == FreerunPlayer.LOOK_NORTH)
 		{
 			nextPosZ = posZ + 1;
 			nextPosX = posX - 1;
 			flag = hasEdgeOnLocation(nextPosX, posY, nextPosZ);
 			
-		} else if (i == FR_FreerunPlayer.LOOK_EAST)
+		} else if (i == FreerunPlayer.LOOK_EAST)
 		{
 			nextPosX = posX - 1;
 			nextPosZ = posZ - 1;
 			flag = hasEdgeOnLocation(nextPosX, posY, nextPosZ);
 			
-		} else if (i == FR_FreerunPlayer.LOOK_SOUTH)
+		} else if (i == FreerunPlayer.LOOK_SOUTH)
 		{
 			nextPosZ = posZ - 1;
 			nextPosX = posX + 1;
@@ -137,25 +137,25 @@ public class FR_Situation
 		boolean flag = false;
 		int i = lookDirection;
 		lookDirection = (lookDirection - 1) % 4;
-		if (i == FR_FreerunPlayer.LOOK_WEST)
+		if (i == FreerunPlayer.LOOK_WEST)
 		{
 			nextPosX = posX + 1;
 			nextPosZ = posZ + 1;
 			flag = hasEdgeOnLocation(nextPosX, posY, nextPosZ);
 			
-		} else if (i == FR_FreerunPlayer.LOOK_NORTH)
+		} else if (i == FreerunPlayer.LOOK_NORTH)
 		{
 			nextPosZ = posZ + 1;
 			nextPosX = posX - 1;
 			flag = hasEdgeOnLocation(nextPosX, posY, nextPosZ);
 			
-		} else if (i == FR_FreerunPlayer.LOOK_EAST)
+		} else if (i == FreerunPlayer.LOOK_EAST)
 		{
 			nextPosX = posX - 1;
 			nextPosZ = posZ - 1;
 			flag = hasEdgeOnLocation(nextPosX, posY, nextPosZ);
 			
-		} else if (i == FR_FreerunPlayer.LOOK_SOUTH)
+		} else if (i == FreerunPlayer.LOOK_SOUTH)
 		{
 			nextPosZ = posZ - 1;
 			nextPosX = posX + 1;
@@ -184,19 +184,19 @@ public class FR_Situation
 	private boolean hasEdgeLeft()
 	{
 		boolean b = false;
-		if (lookDirection == FR_FreerunPlayer.LOOK_WEST)
+		if (lookDirection == FreerunPlayer.LOOK_WEST)
 		{
 			nextPosX = posX + 1;
 			b = hasEdgeOnLocation(nextPosX, posY, posZ);
-		} else if (lookDirection == FR_FreerunPlayer.LOOK_NORTH)
+		} else if (lookDirection == FreerunPlayer.LOOK_NORTH)
 		{
 			nextPosZ = posZ + 1;
 			b = hasEdgeOnLocation(posX, posY, nextPosZ);
-		} else if (lookDirection == FR_FreerunPlayer.LOOK_EAST)
+		} else if (lookDirection == FreerunPlayer.LOOK_EAST)
 		{
 			nextPosX = posX - 1;
 			b = hasEdgeOnLocation(nextPosX, posY, posZ);
-		} else if (lookDirection == FR_FreerunPlayer.LOOK_SOUTH)
+		} else if (lookDirection == FreerunPlayer.LOOK_SOUTH)
 		{
 			nextPosZ = posZ - 1;
 			b = hasEdgeOnLocation(posX, posY, nextPosZ);
@@ -207,19 +207,19 @@ public class FR_Situation
 	private boolean hasEdgeRight()
 	{
 		boolean b = false;
-		if (lookDirection == FR_FreerunPlayer.LOOK_WEST)
+		if (lookDirection == FreerunPlayer.LOOK_WEST)
 		{
 			nextPosX = posX - 1;
 			b = hasEdgeOnLocation(nextPosX, posY, posZ);
-		} else if (lookDirection == FR_FreerunPlayer.LOOK_NORTH)
+		} else if (lookDirection == FreerunPlayer.LOOK_NORTH)
 		{
 			nextPosZ = posZ - 1;
 			b = hasEdgeOnLocation(posX, posY, nextPosZ);
-		} else if (lookDirection == FR_FreerunPlayer.LOOK_EAST)
+		} else if (lookDirection == FreerunPlayer.LOOK_EAST)
 		{
 			nextPosX = posX + 1;
 			b = hasEdgeOnLocation(nextPosX, posY, posZ);
-		} else if (lookDirection == FR_FreerunPlayer.LOOK_SOUTH)
+		} else if (lookDirection == FreerunPlayer.LOOK_SOUTH)
 		{
 			nextPosZ = posZ + 1;
 			b = hasEdgeOnLocation(posX, posY, nextPosZ);
@@ -243,19 +243,19 @@ public class FR_Situation
 	{
 		boolean b = false;
 		nextPosY = posY + 2;
-		if (lookDirection == FR_FreerunPlayer.LOOK_WEST)
+		if (lookDirection == FreerunPlayer.LOOK_WEST)
 		{
 			nextPosZ = posZ - 1;
 			b = hasEdgeOnLocation(posX, nextPosY, nextPosZ);
-		} else if (lookDirection == FR_FreerunPlayer.LOOK_NORTH)
+		} else if (lookDirection == FreerunPlayer.LOOK_NORTH)
 		{
 			nextPosX = posX + 1;
 			b = hasEdgeOnLocation(nextPosX, nextPosY, posZ);
-		} else if (lookDirection == FR_FreerunPlayer.LOOK_EAST)
+		} else if (lookDirection == FreerunPlayer.LOOK_EAST)
 		{
 			nextPosZ = posZ + 1;
 			b = hasEdgeOnLocation(posX, nextPosY, nextPosZ);
-		} else if (lookDirection == FR_FreerunPlayer.LOOK_SOUTH)
+		} else if (lookDirection == FreerunPlayer.LOOK_SOUTH)
 		{
 			nextPosX = posX - 1;
 			b = hasEdgeOnLocation(nextPosX, nextPosY, posZ);
@@ -265,16 +265,16 @@ public class FR_Situation
 	
 	public static int getMetaData(int lookdirection)
 	{
-		if (lookdirection == FR_FreerunPlayer.LOOK_WEST)
+		if (lookdirection == FreerunPlayer.LOOK_WEST)
 		{
 			return 2;
-		} else if (lookdirection == FR_FreerunPlayer.LOOK_NORTH)
+		} else if (lookdirection == FreerunPlayer.LOOK_NORTH)
 		{
 			return 5;
-		} else if (lookdirection == FR_FreerunPlayer.LOOK_EAST)
+		} else if (lookdirection == FreerunPlayer.LOOK_EAST)
 		{
 			return 3;
-		} else if (lookdirection == FR_FreerunPlayer.LOOK_SOUTH)
+		} else if (lookdirection == FreerunPlayer.LOOK_SOUTH)
 		{
 			return 4;
 		}
@@ -286,11 +286,11 @@ public class FR_Situation
 		int b = worldObj.getBlockId(x, y - 1, z);
 		int b1 = worldObj.getBlockId(x, y, z);
 		int md = worldObj.getBlockMetadata(x, y - 1, z);
-		int md1 = FR_Situation.getMetaData(lookDirection);
+		int md1 = Situation.getMetaData(lookDirection);
 		
 		if (b1 == Block.vine.blockID || md == 0 || md == md1)
 		{
-			if (FR_FreerunPlayer.climbableInside.contains(b))
+			if (FreerunPlayer.climbableInside.contains(b))
 			{
 				return true;
 			} else if (worldObj.getBlockMaterial(x, y, z).isSolid() || worldObj.getBlockMaterial(x, y - 1, z).isSolid())
@@ -299,16 +299,16 @@ public class FR_Situation
 			}
 		}
 		
-		if (lookDirection == FR_FreerunPlayer.LOOK_WEST)
+		if (lookDirection == FreerunPlayer.LOOK_WEST)
 		{
 			z++;
-		} else if (lookDirection == FR_FreerunPlayer.LOOK_NORTH)
+		} else if (lookDirection == FreerunPlayer.LOOK_NORTH)
 		{
 			x--;
-		} else if (lookDirection == FR_FreerunPlayer.LOOK_EAST)
+		} else if (lookDirection == FreerunPlayer.LOOK_EAST)
 		{
 			z--;
-		} else if (lookDirection == FR_FreerunPlayer.LOOK_SOUTH)
+		} else if (lookDirection == FreerunPlayer.LOOK_SOUTH)
 		{
 			x++;
 		}
@@ -316,12 +316,12 @@ public class FR_Situation
 		b = worldObj.getBlockId(x, y - 1, z);
 		b1 = worldObj.getBlockId(x, y, z);
 		
-		if (FR_FreerunPlayer.climbableInside.contains(b))
+		if (FreerunPlayer.climbableInside.contains(b))
 		{
 			return false;
 		}
 		
-		if (FR_FreerunPlayer.climbableBlocks.contains(b))
+		if (FreerunPlayer.climbableBlocks.contains(b))
 		{
 			blockHeight = (float) (Block.blocksList[b].getBlockBoundsMaxY());
 			return true;
@@ -332,7 +332,13 @@ public class FR_Situation
 			if (b != b1)
 			{
 				blockHeight = (float) (Block.blocksList[b].getBlockBoundsMaxY());
-				return !(((b == Block.stone.blockID || b == 14 || b == 15 || b == 16 || b == 21 || b == 56 || b == 73 || b == 74) && (b1 == Block.stone.blockID || b1 == 14 || b1 == 15 || b1 == 16 || b1 == 21 || b1 == 56 || b1 == 73 || b1 == 74)) || ((b == Block.dirt.blockID || b == Block.grass.blockID) && (b1 == Block.dirt.blockID || b1 == Block.grass.blockID)) || ((b == Block.cobblestone.blockID || b == Block.cobblestoneMossy.blockID || b == Block.stairCompactCobblestone.blockID) && (b1 == Block.cobblestone.blockID || b1 == Block.cobblestoneMossy.blockID || b1 == Block.stairCompactCobblestone.blockID)) || ((b == Block.planks.blockID || b == Block.stairCompactPlanks.blockID) && (b1 == Block.planks.blockID || b1 == Block.stairCompactPlanks.blockID)));
+				return !(((b == Block.stone.blockID || b == 14 || b == 15 || b == 16 || b == 21 || b == 56 || b == 73 || b == 74) 
+						&& (b1 == Block.stone.blockID || b1 == 14 || b1 == 15 || b1 == 16 || b1 == 21 || b1 == 56 || b1 == 73 || b1 == 74)) 
+						|| ((b == Block.dirt.blockID || b == Block.grass.blockID) && (b1 == Block.dirt.blockID || b1 == Block.grass.blockID)) 
+						|| ((b == Block.cobblestone.blockID || b == Block.cobblestoneMossy.blockID || b == Block.stairsCobblestone.blockID) 
+								&& (b1 == Block.cobblestone.blockID || b1 == Block.cobblestoneMossy.blockID || b1 == Block.stairsCobblestone.blockID)) 
+								|| ((b == Block.planks.blockID || b == Block.stairPlanks.blockID) 
+										&& (b1 == Block.planks.blockID || b1 == Block.stairPlanks.blockID)));
 			}
 		}
 		blockHeight = 1.0F;
@@ -354,13 +360,13 @@ public class FR_Situation
 	private int						posX,posY,posZ,nextPosX,nextPosY,nextPosZ;
 	private MovingObjectPosition	objectMouseOver;
 	
-	public static FR_Situation getSituation(EntityPlayer player, int lookdirection, World world, MovingObjectPosition objectmouseover)
+	public static Situation getSituation(EntityPlayer player, int lookdirection, World world, MovingObjectPosition objectmouseover)
 	{
-		return new FR_Situation(player.posX, player.posY, player.posZ, lookdirection, world, objectmouseover);
+		return new Situation(player.posX, player.posY, player.posZ, lookdirection, world, objectmouseover);
 	}
 	
-	public static FR_Situation getSituation(double x, double y, double z, int lookdirection, World world, MovingObjectPosition objectmouseover)
+	public static Situation getSituation(double x, double y, double z, int lookdirection, World world, MovingObjectPosition objectmouseover)
 	{
-		return new FR_Situation(x, y, z, lookdirection, world, objectmouseover);
+		return new Situation(x, y, z, lookdirection, world, objectmouseover);
 	}
 }

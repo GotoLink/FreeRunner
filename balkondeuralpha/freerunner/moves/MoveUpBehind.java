@@ -1,9 +1,11 @@
-package balkondeuralpha.freerunner;
+package balkondeuralpha.freerunner.moves;
 
-public class FR_MoveUpBehind extends FR_Move
+import balkondeuralpha.freerunner.FreerunPlayer;
+
+public class MoveUpBehind extends Move
 {
 	
-	public FR_MoveUpBehind(FR_FreerunPlayer freerunhandler)
+	public MoveUpBehind(FreerunPlayer freerunhandler)
 	{
 		super(freerunhandler);
 		yDone = xzDone = false;
@@ -28,7 +30,7 @@ public class FR_MoveUpBehind extends FR_Move
 		
 		if (!xzDone)
 		{
-			if (lookDirection == FR_FreerunPlayer.LOOK_WEST)
+			if (lookDirection == FreerunPlayer.LOOK_WEST)
 			{
 				if (player.posZ - startPosZ >= -1.0F)
 				{
@@ -37,7 +39,7 @@ public class FR_MoveUpBehind extends FR_Move
 				{
 					xzDone = true;
 				}
-			} else if (lookDirection == FR_FreerunPlayer.LOOK_NORTH)
+			} else if (lookDirection == FreerunPlayer.LOOK_NORTH)
 			{
 				if (player.posX - startPosX <= 1.0F)
 				{
@@ -46,7 +48,7 @@ public class FR_MoveUpBehind extends FR_Move
 				{
 					xzDone = true;
 				}
-			} else if (lookDirection == FR_FreerunPlayer.LOOK_EAST)
+			} else if (lookDirection == FreerunPlayer.LOOK_EAST)
 			{
 				if (player.posZ - startPosZ <= 1.0F)
 				{
@@ -55,7 +57,7 @@ public class FR_MoveUpBehind extends FR_Move
 				{
 					xzDone = true;
 				}
-			} else if (lookDirection == FR_FreerunPlayer.LOOK_SOUTH)
+			} else if (lookDirection == FreerunPlayer.LOOK_SOUTH)
 			{
 				if (player.posX - startPosX >= -1.0F)
 				{

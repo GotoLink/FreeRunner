@@ -11,11 +11,11 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
 
-public class FR_BlockEdge extends Block
+public class BlockEdge extends Block
 {
-	protected FR_BlockEdge(int i, int j)
+	protected BlockEdge(int i)
 	{
-		super(i, j, Material.circuits);
+		super(i, Material.circuits);
 		this.setCreativeTab(CreativeTabs.tabDecorations);
 	}
 	
@@ -126,7 +126,7 @@ public class FR_BlockEdge extends Block
 		{
 			i1 = 5;
 		}
-		world.setBlockMetadataWithNotify(i, j, k, i1);
+		world.setBlockMetadataWithNotify(i, j, k, i1, 3);
 	}
 	
 	@Override
@@ -153,7 +153,7 @@ public class FR_BlockEdge extends Block
 		if (!flag)
 		{
 			dropBlockAsItem(world, i, j, k, i1, 0);
-			world.setBlockWithNotify(i, j, k, 0);
+			world.setBlockToAir(i, j, k);
 		}
 		super.onNeighborBlockChange(world, i, j, k, l);
 	}

@@ -1,8 +1,8 @@
 package balkondeuralpha.freerunner;
 
-public class FR_Edge
+public class Edge
 {
-	public FR_Edge(int x, int y, int z)
+	public Edge(int x, int y, int z)
 	{
 		posX = x;
 		posY = y;

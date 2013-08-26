@@ -1,10 +1,11 @@
-package balkondeuralpha.freerunner;
+package balkondeuralpha.freerunner.moves;
 
+import balkondeuralpha.freerunner.FreerunPlayer;
 import net.minecraft.entity.player.EntityPlayer;
 
-public class FR_MoveAroundEdge extends FR_MoveClimb
+public class MoveAroundEdge extends MoveClimb
 {
-	protected FR_MoveAroundEdge(FR_FreerunPlayer freerunhandler, int direction, float distance)
+	protected MoveAroundEdge(FreerunPlayer freerunhandler, int direction, float distance)
 	{
 		super(freerunhandler, direction, distance);
 		sideDone = forwardDone = false;
@@ -13,33 +14,33 @@ public class FR_MoveAroundEdge extends FR_MoveClimb
 	@Override
 	public void updateMove()
 	{
-		if (direction == FR_MoveClimb.DIRECTION_LEFT)
+		if (direction == MoveClimb.DIRECTION_LEFT)
 		{
-			if (lookDirection == FR_FreerunPlayer.LOOK_WEST)
+			if (lookDirection == FreerunPlayer.LOOK_WEST)
 			{
 				player.setPosition(player.posX + 2D, player.posY, player.posZ + 2D);
-			} else if (lookDirection == FR_FreerunPlayer.LOOK_NORTH)
+			} else if (lookDirection == FreerunPlayer.LOOK_NORTH)
 			{
 				player.setPosition(player.posX - 2D, player.posY, player.posZ + 2D);
-			} else if (lookDirection == FR_FreerunPlayer.LOOK_EAST)
+			} else if (lookDirection == FreerunPlayer.LOOK_EAST)
 			{
 				player.setPosition(player.posX - 2D, player.posY, player.posZ - 2D);
-			} else if (lookDirection == FR_FreerunPlayer.LOOK_SOUTH)
+			} else if (lookDirection == FreerunPlayer.LOOK_SOUTH)
 			{
 				player.setPosition(player.posX + 2D, player.posY, player.posZ - 2D);
 			}
-		} else if (direction == FR_MoveClimb.DIRECTION_RIGHT)
+		} else if (direction == MoveClimb.DIRECTION_RIGHT)
 		{
-			if (lookDirection == FR_FreerunPlayer.LOOK_WEST)
+			if (lookDirection == FreerunPlayer.LOOK_WEST)
 			{
 				player.setPosition(player.posX - 2D, player.posY, player.posZ - 1D);
-			} else if (lookDirection == FR_FreerunPlayer.LOOK_NORTH)
+			} else if (lookDirection == FreerunPlayer.LOOK_NORTH)
 			{
 				player.setPosition(player.posX + 1D, player.posY, player.posZ - 2D);
-			} else if (lookDirection == FR_FreerunPlayer.LOOK_EAST)
+			} else if (lookDirection == FreerunPlayer.LOOK_EAST)
 			{
 				player.setPosition(player.posX + 2D, player.posY, player.posZ + 1D);
-			} else if (lookDirection == FR_FreerunPlayer.LOOK_SOUTH)
+			} else if (lookDirection == FreerunPlayer.LOOK_SOUTH)
 			{
 				player.setPosition(player.posX - 1D, player.posY, player.posZ + 2D);
 			}
@@ -231,10 +232,10 @@ public class FR_MoveAroundEdge extends FR_MoveClimb
 	{
 		sideDone = false;
 		forwardDone = false;
-		if (direction == FR_MoveClimb.DIRECTION_LEFT)
+		if (direction == MoveClimb.DIRECTION_LEFT)
 		{
 			player.rotationYaw += 90F;
-		} else if (direction == FR_MoveClimb.DIRECTION_RIGHT)
+		} else if (direction == MoveClimb.DIRECTION_RIGHT)
 		{
 			player.rotationYaw -= 90F;
 		}

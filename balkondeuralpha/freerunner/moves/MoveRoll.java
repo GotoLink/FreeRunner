@@ -1,10 +1,11 @@
-package balkondeuralpha.freerunner;
+package balkondeuralpha.freerunner.moves;
 
+import balkondeuralpha.freerunner.FreerunPlayer;
 import net.minecraft.util.MathHelper;
 
-public class FR_MoveRoll extends FR_Move
+public class MoveRoll extends Move
 {
-	protected FR_MoveRoll(FR_FreerunPlayer freerunhandler)
+	protected MoveRoll(FreerunPlayer freerunhandler)
 	{
 		super(freerunhandler);
 	}

@@ -6,11 +6,11 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
 
-public class FR_BlockHayStack extends Block
+public class BlockHayStack extends Block
 {
-	public FR_BlockHayStack(int i, int j)
+	public BlockHayStack(int i)
 	{
-		super(i, j, FreeRun.materialHay);
+		super(i, FreeRun.materialHay);
 		this.setCreativeTab(CreativeTabs.tabDecorations);
 	}
 	

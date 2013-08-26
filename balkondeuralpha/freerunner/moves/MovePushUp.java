@@ -1,10 +1,11 @@
-package balkondeuralpha.freerunner;
+package balkondeuralpha.freerunner.moves;
 
+import balkondeuralpha.freerunner.FreerunPlayer;
 import net.minecraft.entity.player.EntityPlayer;
 
-public class FR_MovePushUp extends FR_Move
+public class MovePushUp extends Move
 {
-	protected FR_MovePushUp(FR_FreerunPlayer freerunhandler)
+	protected MovePushUp(FreerunPlayer freerunhandler)
 	{
 		super(freerunhandler);
 	}
@@ -22,7 +23,7 @@ public class FR_MovePushUp extends FR_Move
 			//moveDone();
 		}
 		
-		if (lookDirection == FR_FreerunPlayer.LOOK_WEST)
+		if (lookDirection == FreerunPlayer.LOOK_WEST)
 		{
 			if (player.posZ - startPosZ <= distance)
 			{
@@ -32,7 +33,7 @@ public class FR_MovePushUp extends FR_Move
 				moveDone();
 			}
 			
-		} else if (lookDirection == FR_FreerunPlayer.LOOK_NORTH)
+		} else if (lookDirection == FreerunPlayer.LOOK_NORTH)
 		{
 			if (player.posX - startPosX >= -distance)
 			{
@@ -42,7 +43,7 @@ public class FR_MovePushUp extends FR_Move
 				moveDone();
 			}
 			
-		} else if (lookDirection == FR_FreerunPlayer.LOOK_EAST)
+		} else if (lookDirection == FreerunPlayer.LOOK_EAST)
 		{
 			if (player.posZ - startPosZ >= -distance)
 			{
@@ -52,7 +53,7 @@ public class FR_MovePushUp extends FR_Move
 				moveDone();
 			}
 			
-		} else if (lookDirection == FR_FreerunPlayer.LOOK_SOUTH)
+		} else if (lookDirection == FreerunPlayer.LOOK_SOUTH)
 		{
 			if (player.posX - startPosX <= distance)
 			{

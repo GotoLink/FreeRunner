@@ -11,11 +11,11 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
 
-public class FR_BlockWoodBar extends Block
+public class BlockWoodBar extends Block
 {
-	protected FR_BlockWoodBar(int i, int j)
+	protected BlockWoodBar(int i)
 	{
-		super(i, j, Material.wood);
+		super(i, Material.wood);
 		this.setCreativeTab(CreativeTabs.tabDecorations);
 	}
 	
@@ -108,7 +108,7 @@ public class FR_BlockWoodBar extends Block
 		{
 			i1 = 5;
 		}
-		world.setBlockMetadataWithNotify(i, j, k, i1);
+		world.setBlockMetadataWithNotify(i, j, k, i1, 3);
 	}
 	
 	@Override
@@ -135,7 +135,7 @@ public class FR_BlockWoodBar extends Block
 		if (!flag)
 		{
 			dropBlockAsItem(world, i, j, k, i1, 0);
-			world.setBlockWithNotify(i, j, k, 0);
+			world.setBlockToAir(i, j, k);
 		}
 		super.onNeighborBlockChange(world, i, j, k, l);
 	}

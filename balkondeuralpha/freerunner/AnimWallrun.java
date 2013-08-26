@@ -2,7 +2,7 @@ package balkondeuralpha.freerunner;
 
 import net.minecraft.client.model.ModelBiped;
 
-public class FR_AnimWallrun extends FR_Animation
+public class AnimWallrun extends Animation
 {
 	@Override
 	public void doAnimate(ModelBiped model, float progress, float rendertime)

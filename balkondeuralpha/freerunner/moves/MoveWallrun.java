@@ -1,13 +1,15 @@
-package balkondeuralpha.freerunner;
+package balkondeuralpha.freerunner.moves;
 
+import balkondeuralpha.freerunner.AnimWallrun;
+import balkondeuralpha.freerunner.FreerunPlayer;
 import net.minecraft.entity.player.EntityPlayer;
 
-public class FR_MoveWallrun extends FR_Move
+public class MoveWallrun extends Move
 {
-	protected FR_MoveWallrun(FR_FreerunPlayer freerunhandler)
+	protected MoveWallrun(FreerunPlayer freerunhandler)
 	{
 		super(freerunhandler);
-		animation = new FR_AnimWallrun();
+		animation = new AnimWallrun();
 	}
 	
 	@Override
