@@ -1,49 +1,30 @@
 package balkondeuralpha.freerunner;
 
+import net.minecraftforge.client.event.RenderPlayerEvent;
+import net.minecraftforge.event.ForgeSubscribe;
 import balkondeuralpha.freerunner.moves.Move;
-import net.minecraft.client.model.ModelBiped;
-import net.minecraft.entity.Entity;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+
 @SideOnly(Side.CLIENT)
-public class Animator extends RenderPlayerBase
-{
-	public Animator(RenderPlayerAPI renderplayerapi)
-	{
-		super(renderplayerapi);
-		freerun = null;
-		renderTime = 0F;
-		FreeRun.instance.setAnimator(this);
-	}
-	
-	public void setFreerunPlayer(FreerunPlayer freerun)
-	{
+public class Animator {
+	private final FreerunPlayer freerun;
+
+	public Animator(FreerunPlayer freerun) {
 		this.freerun = freerun;
 	}
-	
-	public void setRenderTime(float f)
-	{
-		renderTime = f;
-	}
-	
-	public void onRender(ModelBiped model, Entity entity)
-	{
-		if (!FreeRun.instance.properties.enableAnimations || freerun == null /*|| freerun.player != entity*/)//FIXME
-		{
+
+	@ForgeSubscribe
+	public void onRender(RenderPlayerEvent.Post event) {
+		if (!FRCommonProxy.properties.enableAnimations || freerun == null || freerun.player != event.entity) {
 			return;
 		}
 		Move move = freerun.move;
-		if (move != null)
-		{
+		if (move != null) {
 			Animation anim = freerun.move.getAnimation();
-			if (anim != null)
-			{
-				System.out.println(renderTime);
-				anim.doAnimate(model, move.prevAnimProgress + (move.animProgress - move.prevAnimProgress) * renderTime, renderTime);
+			if (anim != null) {
+				anim.doAnimate(event.renderer.modelBipedMain, move.prevAnimProgress + (move.animProgress - move.prevAnimProgress) * event.partialRenderTick, event.partialRenderTick);
 			}
 		}
 	}
-	
-	private FreerunPlayer	freerun;
-	private float				renderTime;
 }
