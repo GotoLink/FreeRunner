@@ -9,12 +9,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.src.ModLoader;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumMovingObjectType;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
+import net.minecraft.world.World;
 import net.minecraftforge.event.ForgeSubscribe;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
@@ -33,7 +35,6 @@ public class FreerunPlayer {
 	public Situation situation;
 	public double startPosY, startPosX, startPosZ;
 	private float startRollingYaw, startRollingPitch;
-	public MovingObjectPosition objectMouseOver;
 	public double horizontalSpeed;
 	public boolean isClimbing, wallRunning, freeRunning;
 	public float rollAnimation;
@@ -58,7 +59,7 @@ public class FreerunPlayer {
 
 	@ForgeSubscribe
 	public void afterDamageEntity(LivingHurtEvent event) {
-		if (event.entityLiving instanceof EntityPlayer || event.source.getEntity() instanceof EntityPLayer)
+		if (event.entityLiving instanceof EntityPlayer)
 			isClimbing = false;
 	}
 
@@ -88,27 +89,27 @@ public class FreerunPlayer {
 			j = MathHelper.floor_double(player.boundingBox.minY + player.motionY);
 			int b1 = player.worldObj.getBlockId(i, j, k);
 			Material material = player.worldObj.getBlockMaterial(i, j, k);
-			//Vec3D vec3d = Vec3D.createVector(player.posX, player.boundingBox.minY, player.posZ);
-			//MovingObjectPosition mop = worldObj.rayTraceBlocks_do_do(vec3d, vec3d.addVector(player.motionX, player.motionY, player.motionZ), true, true);
+			List<Entity> list = player.worldObj.getEntitiesWithinAABBExcludingEntity(player, player.boundingBox.expand(1.0, 2.0, 1.0));
 			float f = event.distance;
-			if (f > 3.0F && canLandOnMob()) {
-				EntityLiving entityliving = (EntityLiving) objectMouseOver.entityHit;
-				//player.worldObj.playSoundAtEntity(entityliving, entityliving..getDeathSound(), entityliving.getSoundVolume(), (entityliving.getRNG().nextFloat() - entityliving.getRNG().nextFloat()) * 0.2F + 1.0F);
-				//entityliving.setBeenAttacked();FIXME
-				entityliving.setAttackTarget(player);
-				entityliving.performHurtAnimation();
-				player.motionY *= 0.1F;
-				f = 0F;
+			if (f > 3.0F && list != null && !list.isEmpty()) {
+				EntityLiving entityliving = canLandOnMob(list);
+				if (entityliving != null) {
+					entityliving.attackEntityFrom(DamageSource.causePlayerDamage(player), 0.0F);
+					entityliving.setAttackTarget(player);
+					entityliving.performHurtAnimation();
+					player.motionY *= 0.1F;
+					event.distance = 0F;
+				}
 			} else if (b != b1 && material.isSolid() && material != Material.water && material != Material.lava) {
-				f = roll(f);
+				event.distance = roll(f);
 			}
 		}
 	}
 
 	@ForgeSubscribe
 	public void beforeOnUpdate(LivingUpdateEvent event) {
-		objectMouseOver = Minecraft.getMinecraft().objectMouseOver;
-		situation = Situation.getSituation(player, getLookDirection(), player.worldObj, objectMouseOver);
+		MovingObjectPosition movingobjectposition = this.getMovingObjectPositionFromPlayer(player.worldObj, player, true);
+		situation = Situation.getSituation(player, getLookDirection(), player.worldObj, movingobjectposition);
 		horizontalSpeed = Math.sqrt(player.motionX * player.motionX + player.motionZ * player.motionZ);
 		prevRollAnimation = rollAnimation;
 		if (isRolling()) {
@@ -126,13 +127,14 @@ public class FreerunPlayer {
 	}
 
 	public int canHopOver() {
-		if (objectMouseOver != null && objectMouseOver.typeOfHit == EnumMovingObjectType.TILE) {
-			if (isSelectedBlockClose(2.0F) && isSelectedBlockOnLevel(0)) {
-				int b = getSelectedBlockId();
-				Material m = getSelectedBlockMaterial();
-				AxisAlignedBB boundingbox = Block.blocksList[b].getCollisionBoundingBoxFromPool(player.worldObj, objectMouseOver.blockX, objectMouseOver.blockY, objectMouseOver.blockZ);
+		MovingObjectPosition movingobjectposition = this.getMovingObjectPositionFromPlayer(player.worldObj, player, true);
+		if (movingobjectposition != null && movingobjectposition.typeOfHit == EnumMovingObjectType.TILE) {
+			if (isSelectedBlockClose(movingobjectposition, 2.0F) && isSelectedBlockOnLevel(movingobjectposition, 0)) {
+				int b = getSelectedBlockId(movingobjectposition);
+				Material m = getSelectedBlockMaterial(movingobjectposition);
+				AxisAlignedBB boundingbox = Block.blocksList[b].getCollisionBoundingBoxFromPool(player.worldObj, movingobjectposition.blockX, movingobjectposition.blockY, movingobjectposition.blockZ);
 				if (m.isSolid() && isBlockAboveAir(2, false, isClimbing)) {
-					if (boundingbox != null && boundingbox.maxY - objectMouseOver.blockY > 1.0F) {
+					if (boundingbox != null && boundingbox.maxY - movingobjectposition.blockY > 1.0F) {
 						return 2;
 					} else if (Block.blocksList[b].getBlockBoundsMaxY() > player.stepHeight && Block.blocksList[b].getBlockBoundsMaxY() <= 1.0F && b != Block.stairsWoodOak.blockID
 							&& b != Block.stairsCobblestone.blockID) {
@@ -141,11 +143,11 @@ public class FreerunPlayer {
 				}
 			}
 		}
-		if (objectMouseOver == null || objectMouseOver.typeOfHit != EnumMovingObjectType.ENTITY || objectMouseOver.entityHit == null) {
+		if (movingobjectposition == null || movingobjectposition.typeOfHit != EnumMovingObjectType.ENTITY || movingobjectposition.entityHit == null) {
 			return 0;
 		}
-		if (isSelectedEntityClose(2.0F) && isSelectedEntityOnLevel(0)) {
-			if (objectMouseOver.entityHit.boundingBox.maxY - objectMouseOver.entityHit.boundingBox.minY <= 1.5D) {
+		if (isSelectedEntityClose(movingobjectposition.entityHit, 2.0F) && isSelectedEntityOnLevel(movingobjectposition.entityHit, 0)) {
+			if (movingobjectposition.entityHit.boundingBox.maxY - movingobjectposition.entityHit.boundingBox.minY <= 1.5D) {
 				return 3;
 			}
 		}
@@ -173,27 +175,31 @@ public class FreerunPlayer {
 		return 0;
 	}
 
-	public boolean canLandOnMob() {
-		if (objectMouseOver == null || objectMouseOver.typeOfHit != EnumMovingObjectType.ENTITY) {
-			return false;
+	public EntityLiving canLandOnMob(List<Entity> list) {
+		for (Entity ent : list) {
+			if (ent instanceof EntityLiving && isSelectedEntityClose(ent, 3.0F, 0D, player.motionY, 0D))
+				return (EntityLiving) ent;
 		}
-		return objectMouseOver.entityHit instanceof EntityLiving && isSelectedEntityClose(3.0F, 0D, player.motionY, 0D);
+		return null;
 	}
 
 	public boolean canWallrun() {
-		if (isSelectedBlockClose(2.0F)) {
-			Material m = getSelectedBlockMaterial();
-			Material m1 = getSelectedBlockMaterial(0, 1, 0);
-			if (isSelectedBlockOnLevel(1)) {
-				m = getSelectedBlockMaterial();
-				m1 = getSelectedBlockMaterial(0, -1, 0);
-			}
-			if (!m1.isSolid()) {
-				if (situation.canPushUp() != 0) {
-					return m.isSolid() && !player.isJumping;
+		MovingObjectPosition movingobjectposition = this.getMovingObjectPositionFromPlayer(player.worldObj, player, true);
+		if (movingobjectposition != null && movingobjectposition.typeOfHit == EnumMovingObjectType.TILE) {
+			if (isSelectedBlockClose(movingobjectposition, 2.0F)) {
+				Material m = getSelectedBlockMaterial(movingobjectposition);
+				Material m1 = getSelectedBlockMaterial(movingobjectposition, 0, 1, 0);
+				if (isSelectedBlockOnLevel(movingobjectposition, 1)) {
+					m = getSelectedBlockMaterial(movingobjectposition);
+					m1 = getSelectedBlockMaterial(movingobjectposition, 0, -1, 0);
 				}
+				if (!m1.isSolid()) {
+					if (situation.canPushUp() != 0) {
+						return m.isSolid() && !player.isJumping;
+					}
+				}
+				return m.isSolid() && m1.isSolid() && !player.isJumping;
 			}
-			return m.isSolid() && m1.isSolid() && !player.isJumping;
 		}
 		return false;
 	}
@@ -202,49 +208,36 @@ public class FreerunPlayer {
 		return (MathHelper.floor_double(((player.rotationYaw * 4F) / 360F) + 0.5D) & 3);
 	}
 
-	public int getSelectedBlockId() {
-		return getSelectedBlockId(0, 0, 0);
+	public int getSelectedBlockId(MovingObjectPosition movingobjectposition) {
+		return getSelectedBlockId(movingobjectposition, 0, 0, 0);
 	}
 
-	public int getSelectedBlockId(int addX, int addY, int addZ) {
-		if (objectMouseOver == null || objectMouseOver.typeOfHit != EnumMovingObjectType.TILE) {
-			return 0;
-		}
-		return player.worldObj.getBlockId(objectMouseOver.blockX + addX, objectMouseOver.blockY + addY, objectMouseOver.blockZ + addZ);
+	public int getSelectedBlockId(MovingObjectPosition movingobjectposition, int addX, int addY, int addZ) {
+		return player.worldObj.getBlockId(movingobjectposition.blockX + addX, movingobjectposition.blockY + addY, movingobjectposition.blockZ + addZ);
 	}
 
-	public Material getSelectedBlockMaterial() {
-		return getSelectedBlockMaterial(0, 0, 0);
+	public Material getSelectedBlockMaterial(MovingObjectPosition movingobjectposition) {
+		return getSelectedBlockMaterial(movingobjectposition, 0, 0, 0);
 	}
 
-	public Material getSelectedBlockMaterial(int addX, int addY, int addZ) {
-		if (objectMouseOver == null || objectMouseOver.typeOfHit != EnumMovingObjectType.TILE) {
-			return Material.air;
-		}
-		return player.worldObj.getBlockMaterial(objectMouseOver.blockX + addX, objectMouseOver.blockY + addY, objectMouseOver.blockZ + addZ);
+	public Material getSelectedBlockMaterial(MovingObjectPosition movingobjectposition, int addX, int addY, int addZ) {
+		return player.worldObj.getBlockMaterial(movingobjectposition.blockX + addX, movingobjectposition.blockY + addY, movingobjectposition.blockZ + addZ);
 	}
 
-	@Override
-	public float getSpeedModifier() {
-		if (player.isSprinting() || isTooHungry()) {
-			return super.getSpeedModifier();
-		}
-		if (!player.isInWater() && !player.handleLavaMovement()) {
-			if (player.onGround && !isClimbing) {
-				if (freeRunning) {
-					return FRCommonProxy.properties.speedMultiplier;
-				} /*
-				 * else if (FreeRun.barWood.blockID!=0 &&
-				 * isOnCertainBlock(FreeRun.barWood.blockID)) {FIXME return
-				 * 0.5F; }
-				 */
-			}
-		} else if (freeRunning) {
-			return FRCommonProxy.properties.speedMultiplier;
-		}
-		return super.getSpeedModifier();
-	}
-
+	/*
+	 * @Override public float getSpeedModifier() { if (player.isSprinting() ||
+	 * isTooHungry()) { return super.getSpeedModifier(); } if
+	 * (!player.isInWater() && !player.handleLavaMovement()) { if
+	 * (player.onGround && !isClimbing) { if (freeRunning) { return
+	 * FRCommonProxy.properties.speedMultiplier; } /* else if
+	 * (FreeRun.barWood.blockID!=0 && isOnCertainBlock(FreeRun.barWood.blockID))
+	 * {FIXME return 0.5F; }
+	 */
+	/*
+	 * } } else if (freeRunning) { return
+	 * FRCommonProxy.properties.speedMultiplier; } return
+	 * super.getSpeedModifier(); }
+	 */
 	public boolean hasBlockInFront() {
 		double d = -MathHelper.sin((player.rotationYaw / 180F) * 3.141593F) * MathHelper.cos((0 / 180F) * 3.141593F);
 		double d1 = MathHelper.cos((player.rotationYaw / 180F) * 3.141593F) * MathHelper.cos((0 / 180F) * 3.141593F);
@@ -255,12 +248,13 @@ public class FreerunPlayer {
 	}
 
 	public boolean isBlockAboveAir(int l, boolean blockAboveBlockIsSolid, boolean climbing) {
-		if (objectMouseOver == null || objectMouseOver.typeOfHit != EnumMovingObjectType.TILE) {
+		MovingObjectPosition movingobjectposition = this.getMovingObjectPositionFromPlayer(player.worldObj, player, true);
+		if (movingobjectposition == null || movingobjectposition.typeOfHit != EnumMovingObjectType.TILE) {
 			return false;
 		}
-		int i = objectMouseOver.blockX;
-		int j = objectMouseOver.blockY + 1;
-		int k = objectMouseOver.blockZ;
+		int i = movingobjectposition.blockX;
+		int j = movingobjectposition.blockY + 1;
+		int k = movingobjectposition.blockZ;
 		Material m = player.worldObj.getBlockMaterial(i, j, k);
 		Material m1 = player.worldObj.getBlockMaterial(i, j + 1, k);
 		Material m2 = player.worldObj.getBlockMaterial(i, j + 2, k);
@@ -296,19 +290,19 @@ public class FreerunPlayer {
 	}
 
 	public boolean isMovingBackwards() {
-		return Keyboard.isKeyDown(FreeRun.instance.keyBackward);
+		return player.moveForward < 0;
 	}
 
 	public boolean isMovingForwards() {
-		return Keyboard.isKeyDown(FreeRun.instance.keyForward);
+		return player.moveForward > 0;
 	}
 
 	public boolean isMovingLeft() {
-		return Keyboard.isKeyDown(FreeRun.instance.keyLeft);
+		return player.moveStrafing > 0;
 	}
 
 	public boolean isMovingRight() {
-		return Keyboard.isKeyDown(FreeRun.instance.keyRight);
+		return player.moveStrafing < 0;
 	}
 
 	public boolean isOnCertainBlock(int blockID) {
@@ -322,56 +316,38 @@ public class FreerunPlayer {
 		return rollAnimation < 1F;
 	}
 
-	public boolean isSelectedBlockClose(float f) {
-		return isSelectedBlockClose(f, 0D, 0D, 0D);
+	public boolean isSelectedBlockClose(MovingObjectPosition movingobjectposition, float f) {
+		return isSelectedBlockClose(movingobjectposition, f, 0D, 0D, 0D);
 	}
 
-	public boolean isSelectedBlockClose(float f, double addX, double addY, double addZ) {
-		if (objectMouseOver == null || objectMouseOver.typeOfHit != EnumMovingObjectType.TILE) {
-			return false;
-		}
-		double d1 = Math.sqrt(Math.pow((objectMouseOver.blockX + 0.5D) + addX - player.posX, 2));
-		double d2 = Math.sqrt(Math.pow((objectMouseOver.blockY + 0.5D) + addY - player.posY, 2));
-		double d3 = Math.sqrt(Math.pow((objectMouseOver.blockZ + 0.5D) + addZ - player.posZ, 2));
+	public boolean isSelectedBlockClose(MovingObjectPosition movingobjectposition, float f, double addX, double addY, double addZ) {
+		double d1 = Math.sqrt(Math.pow((movingobjectposition.blockX + 0.5D) + addX - player.posX, 2));
+		double d2 = Math.sqrt(Math.pow((movingobjectposition.blockY + 0.5D) + addY - player.posY, 2));
+		double d3 = Math.sqrt(Math.pow((movingobjectposition.blockZ + 0.5D) + addZ - player.posZ, 2));
 		double dXYZ = Math.sqrt((d1 * d1) + (d2 * d2) + (d3 * d3));
 		return dXYZ <= f;
 	}
 
-	public boolean isSelectedBlockOnLevel(int i) {
-		if (objectMouseOver == null || objectMouseOver.typeOfHit != EnumMovingObjectType.TILE) {
-			return false;
-		}
+	public boolean isSelectedBlockOnLevel(MovingObjectPosition movingobjectposition, int i) {
 		int j = MathHelper.floor_double(player.boundingBox.minY) + i;
-		return j == objectMouseOver.blockY;
+		return j == movingobjectposition.blockY;
 	}
 
-	public boolean isSelectedEntityClose(float f) {
-		return isSelectedEntityClose(f, 0D, 0D, 0D);
+	public boolean isSelectedEntityClose(Entity ent, float f) {
+		return isSelectedEntityClose(ent, f, 0D, 0D, 0D);
 	}
 
-	public boolean isSelectedEntityClose(float f, double addX, double addY, double addZ) {
-		if (objectMouseOver == null || objectMouseOver.typeOfHit != EnumMovingObjectType.ENTITY) {
-			return false;
-		}
-		if (objectMouseOver.entityHit == null) {
-			return false;
-		}
-		double d1 = Math.sqrt(Math.pow((objectMouseOver.entityHit.posX + 0.5D) + addX - player.posX, 2));
-		double d2 = Math.sqrt(Math.pow((objectMouseOver.entityHit.posY + 0.5D) + addY - player.posY, 2));
-		double d3 = Math.sqrt(Math.pow((objectMouseOver.entityHit.posZ + 0.5D) + addZ - player.posZ, 2));
+	public boolean isSelectedEntityClose(Entity ent, float f, double addX, double addY, double addZ) {
+		double d1 = Math.sqrt(Math.pow((ent.posX + 0.5D) + addX - player.posX, 2));
+		double d2 = Math.sqrt(Math.pow((ent.posY + 0.5D) + addY - player.posY, 2));
+		double d3 = Math.sqrt(Math.pow((ent.posZ + 0.5D) + addZ - player.posZ, 2));
 		double dXYZ = Math.sqrt((d1 * d1) + (d2 * d2) + (d3 * d3));
 		return dXYZ <= f;
 	}
 
-	public boolean isSelectedEntityOnLevel(int i) {
-		if (objectMouseOver == null || objectMouseOver.typeOfHit != EnumMovingObjectType.ENTITY) {
-			return false;
-		}
-		if (objectMouseOver.entityHit == null) {
-			return false;
-		}
+	public boolean isSelectedEntityOnLevel(Entity ent, int i) {
 		int j = MathHelper.floor_double(player.boundingBox.minY) + i;
-		return j == MathHelper.floor_double(objectMouseOver.entityHit.boundingBox.minY);
+		return j == MathHelper.floor_double(ent.boundingBox.minY);
 	}
 
 	public boolean isTooHungry() {
@@ -406,6 +382,29 @@ public class FreerunPlayer {
 			player.motionY = vec3d.yCoord - player.posY;
 			player.motionZ = vec3d.zCoord - player.posZ;
 		}
+	}
+
+	protected MovingObjectPosition getMovingObjectPositionFromPlayer(World par1World, EntityPlayer par2EntityPlayer, boolean par3) {
+		float f = 1.0F;
+		float f1 = par2EntityPlayer.prevRotationPitch + (par2EntityPlayer.rotationPitch - par2EntityPlayer.prevRotationPitch) * f;
+		float f2 = par2EntityPlayer.prevRotationYaw + (par2EntityPlayer.rotationYaw - par2EntityPlayer.prevRotationYaw) * f;
+		double d0 = par2EntityPlayer.prevPosX + (par2EntityPlayer.posX - par2EntityPlayer.prevPosX) * f;
+		double d1 = par2EntityPlayer.prevPosY + (par2EntityPlayer.posY - par2EntityPlayer.prevPosY) * f
+				+ (par1World.isRemote ? par2EntityPlayer.getEyeHeight() - par2EntityPlayer.getDefaultEyeHeight() : par2EntityPlayer.getEyeHeight()); // isRemote check to revert changes to ray trace position due to adding the eye height clientside and player yOffset differences
+		double d2 = par2EntityPlayer.prevPosZ + (par2EntityPlayer.posZ - par2EntityPlayer.prevPosZ) * f;
+		Vec3 vec3 = par1World.getWorldVec3Pool().getVecFromPool(d0, d1, d2);
+		float f3 = MathHelper.cos(-f2 * 0.017453292F - (float) Math.PI);
+		float f4 = MathHelper.sin(-f2 * 0.017453292F - (float) Math.PI);
+		float f5 = -MathHelper.cos(-f1 * 0.017453292F);
+		float f6 = MathHelper.sin(-f1 * 0.017453292F);
+		float f7 = f4 * f5;
+		float f8 = f3 * f5;
+		double d3 = 5.0D;
+		if (par2EntityPlayer instanceof EntityPlayerMP) {
+			d3 = ((EntityPlayerMP) par2EntityPlayer).theItemInWorldManager.getBlockReachDistance();
+		}
+		Vec3 vec31 = vec3.addVector(f7 * d3, f6 * d3, f8 * d3);
+		return par1World.rayTraceBlocks_do_do(vec3, vec31, par3, !par3);
 	}
 
 	protected void updateAnimations(float rendertime) {

@@ -21,7 +21,7 @@ public class Animator {
 		}
 		Move move = freerun.move;
 		if (move != null) {
-			Animation anim = freerun.move.getAnimation();
+			Animation anim = move.getAnimation();
 			if (anim != null) {
 				anim.doAnimate(event.renderer.modelBipedMain, move.prevAnimProgress + (move.animProgress - move.prevAnimProgress) * event.partialRenderTick, event.partialRenderTick);
 			}
