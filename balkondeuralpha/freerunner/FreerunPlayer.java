@@ -11,19 +11,10 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumMovingObjectType;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
-import net.minecraft.world.World;
-import net.minecraftforge.event.ForgeSubscribe;
-import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
-import net.minecraftforge.event.entity.living.LivingFallEvent;
-import net.minecraftforge.event.entity.living.LivingHurtEvent;
-
-import org.lwjgl.input.Keyboard;
-
 import balkondeuralpha.freerunner.moves.Move;
 import balkondeuralpha.freerunner.moves.MoveAroundEdge;
 import balkondeuralpha.freerunner.moves.MoveWallrun;
@@ -37,30 +28,22 @@ public class FreerunPlayer {
 	private float startRollingYaw, startRollingPitch;
 	public double horizontalSpeed;
 	public boolean isClimbing, wallRunning, freeRunning;
-	public float rollAnimation;
-	private float prevRollAnimation;
-	private boolean freerunKeyEvent;
+	public float rollAnimation, prevRollAnimation;
 	public EntityPlayer player;
 	public static List<Integer> climbableBlocks, climbableInside;
 	public static final int LOOK_WEST = 0, LOOK_NORTH = 1, LOOK_EAST = 2, LOOK_SOUTH = 3;
 
-	public FreerunPlayer() {
+	public FreerunPlayer(EntityPlayer player) {
+		this.player = player;
 		climbableBlocks = new ArrayList<Integer>();
 		climbableInside = new ArrayList<Integer>();
 		setMove(null);
 		Move.addAllMoves(this);
-		freerunKeyEvent = false;
 		freeRunning = false;
 		horizontalSpeed = 0D;
 		rollAnimation = 1F;
 		situation = null;
 		addAllClimableBlocks();
-	}
-
-	@ForgeSubscribe
-	public void afterDamageEntity(LivingHurtEvent event) {
-		if (event.entityLiving instanceof EntityPlayer)
-			isClimbing = false;
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -79,55 +62,8 @@ public class FreerunPlayer {
 		}
 	}
 
-	@ForgeSubscribe
-	public void beforeFall(LivingFallEvent event) {
-		if (freeRunning) {
-			int i = MathHelper.floor_double(player.posX);
-			int j = MathHelper.floor_double(player.boundingBox.minY);
-			int k = MathHelper.floor_double(player.posZ);
-			int b = player.worldObj.getBlockId(i, j, k);
-			j = MathHelper.floor_double(player.boundingBox.minY + player.motionY);
-			int b1 = player.worldObj.getBlockId(i, j, k);
-			Material material = player.worldObj.getBlockMaterial(i, j, k);
-			List<Entity> list = player.worldObj.getEntitiesWithinAABBExcludingEntity(player, player.boundingBox.expand(1.0, 2.0, 1.0));
-			float f = event.distance;
-			if (f > 3.0F && list != null && !list.isEmpty()) {
-				EntityLiving entityliving = canLandOnMob(list);
-				if (entityliving != null) {
-					entityliving.attackEntityFrom(DamageSource.causePlayerDamage(player), 0.0F);
-					entityliving.setAttackTarget(player);
-					entityliving.performHurtAnimation();
-					player.motionY *= 0.1F;
-					event.distance = 0F;
-				}
-			} else if (b != b1 && material.isSolid() && material != Material.water && material != Material.lava) {
-				event.distance = roll(f);
-			}
-		}
-	}
-
-	@ForgeSubscribe
-	public void beforeOnUpdate(LivingUpdateEvent event) {
-		MovingObjectPosition movingobjectposition = this.getMovingObjectPositionFromPlayer(player.worldObj, player, true);
-		situation = Situation.getSituation(player, getLookDirection(), player.worldObj, movingobjectposition);
-		horizontalSpeed = Math.sqrt(player.motionX * player.motionX + player.motionZ * player.motionZ);
-		prevRollAnimation = rollAnimation;
-		if (isRolling()) {
-			rollAnimation += 0.05F;
-		}
-		/*
-		 * if (player.prevPosX != 0D && player.prevPosY != 0D && player.prevPosZ
-		 * != 0D) { handleStats(player.posX - player.prevPosX, player.posY -
-		 * player.prevPosY, player.posZ - player.prevPosZ); }
-		 */
-		handleInput();
-		handleFreerunning();
-		handleMoves();
-		handleTimers();
-	}
-
 	public int canHopOver() {
-		MovingObjectPosition movingobjectposition = this.getMovingObjectPositionFromPlayer(player.worldObj, player, true);
+		MovingObjectPosition movingobjectposition = getMovingObjectPositionFromPlayer(true);
 		if (movingobjectposition != null && movingobjectposition.typeOfHit == EnumMovingObjectType.TILE) {
 			if (isSelectedBlockClose(movingobjectposition, 2.0F) && isSelectedBlockOnLevel(movingobjectposition, 0)) {
 				int b = getSelectedBlockId(movingobjectposition);
@@ -184,7 +120,7 @@ public class FreerunPlayer {
 	}
 
 	public boolean canWallrun() {
-		MovingObjectPosition movingobjectposition = this.getMovingObjectPositionFromPlayer(player.worldObj, player, true);
+		MovingObjectPosition movingobjectposition = getMovingObjectPositionFromPlayer(true);
 		if (movingobjectposition != null && movingobjectposition.typeOfHit == EnumMovingObjectType.TILE) {
 			if (isSelectedBlockClose(movingobjectposition, 2.0F)) {
 				Material m = getSelectedBlockMaterial(movingobjectposition);
@@ -224,20 +160,12 @@ public class FreerunPlayer {
 		return player.worldObj.getBlockMaterial(movingobjectposition.blockX + addX, movingobjectposition.blockY + addY, movingobjectposition.blockZ + addZ);
 	}
 
-	/*
-	 * @Override public float getSpeedModifier() { if (player.isSprinting() ||
-	 * isTooHungry()) { return super.getSpeedModifier(); } if
-	 * (!player.isInWater() && !player.handleLavaMovement()) { if
-	 * (player.onGround && !isClimbing) { if (freeRunning) { return
-	 * FRCommonProxy.properties.speedMultiplier; } /* else if
-	 * (FreeRun.barWood.blockID!=0 && isOnCertainBlock(FreeRun.barWood.blockID))
-	 * {FIXME return 0.5F; }
-	 */
-	/*
-	 * } } else if (freeRunning) { return
-	 * FRCommonProxy.properties.speedMultiplier; } return
-	 * super.getSpeedModifier(); }
-	 */
+	public void handleThings() {
+		handleFreerunning();
+		handleMoves();
+		handleTimers();
+	}
+
 	public boolean hasBlockInFront() {
 		double d = -MathHelper.sin((player.rotationYaw / 180F) * 3.141593F) * MathHelper.cos((0 / 180F) * 3.141593F);
 		double d1 = MathHelper.cos((player.rotationYaw / 180F) * 3.141593F) * MathHelper.cos((0 / 180F) * 3.141593F);
@@ -248,7 +176,7 @@ public class FreerunPlayer {
 	}
 
 	public boolean isBlockAboveAir(int l, boolean blockAboveBlockIsSolid, boolean climbing) {
-		MovingObjectPosition movingobjectposition = this.getMovingObjectPositionFromPlayer(player.worldObj, player, true);
+		MovingObjectPosition movingobjectposition = getMovingObjectPositionFromPlayer(true);
 		if (movingobjectposition == null || movingobjectposition.typeOfHit != EnumMovingObjectType.TILE) {
 			return false;
 		}
@@ -275,10 +203,6 @@ public class FreerunPlayer {
 		} else {
 			return !m.isSolid();
 		}
-	}
-
-	public boolean isFreerunning() {
-		return freeRunning;
 	}
 
 	public boolean isHangingStill() {
@@ -358,6 +282,38 @@ public class FreerunPlayer {
 		return move instanceof MoveWallrun;
 	}
 
+	public float roll(float f) {
+		if (!freeRunning || f < 3F) {
+			return f;
+		}
+		float maxFall = 6F;
+		if (f < maxFall) {
+			f /= 2F;
+			return f;
+		}
+		int i = MathHelper.floor_double(player.posX);
+		int j = MathHelper.floor_double(player.boundingBox.minY - 1.1F + player.motionY);
+		int j1 = MathHelper.floor_double(player.boundingBox.minY + 0.1F + player.motionY);
+		int k = MathHelper.floor_double(player.posZ);
+		int b = player.worldObj.getBlockId(i, j, k);
+		if (b == Block.fence.blockID || b == Block.netherFence.blockID || isOnCertainBlock(Block.leaves.blockID) || isOnCertainBlock(FRCommonProxy.barWood.blockID) || player.isInWater()) {
+			f /= 2F;
+			return f;
+		}
+		if (!isMovingForwards()) {
+			f *= 0.8F;
+			return f;
+		}
+		float f1 = 1.0F;
+		double d = -MathHelper.sin((player.rotationYaw / 180F) * 3.141593F) * f1;
+		double d1 = MathHelper.cos((player.rotationYaw / 180F) * 3.141593F) * f1;
+		startRolling();
+		player.setVelocity(d, 0, d1);
+		player.addExhaustion(0.3F);
+		f /= 2F;
+		return f;
+	}
+
 	public void setMove(Move move) {
 		this.move = move;
 	}
@@ -384,15 +340,14 @@ public class FreerunPlayer {
 		}
 	}
 
-	protected MovingObjectPosition getMovingObjectPositionFromPlayer(World par1World, EntityPlayer par2EntityPlayer, boolean par3) {
+	protected MovingObjectPosition getMovingObjectPositionFromPlayer(boolean par3) {
 		float f = 1.0F;
-		float f1 = par2EntityPlayer.prevRotationPitch + (par2EntityPlayer.rotationPitch - par2EntityPlayer.prevRotationPitch) * f;
-		float f2 = par2EntityPlayer.prevRotationYaw + (par2EntityPlayer.rotationYaw - par2EntityPlayer.prevRotationYaw) * f;
-		double d0 = par2EntityPlayer.prevPosX + (par2EntityPlayer.posX - par2EntityPlayer.prevPosX) * f;
-		double d1 = par2EntityPlayer.prevPosY + (par2EntityPlayer.posY - par2EntityPlayer.prevPosY) * f
-				+ (par1World.isRemote ? par2EntityPlayer.getEyeHeight() - par2EntityPlayer.getDefaultEyeHeight() : par2EntityPlayer.getEyeHeight()); // isRemote check to revert changes to ray trace position due to adding the eye height clientside and player yOffset differences
-		double d2 = par2EntityPlayer.prevPosZ + (par2EntityPlayer.posZ - par2EntityPlayer.prevPosZ) * f;
-		Vec3 vec3 = par1World.getWorldVec3Pool().getVecFromPool(d0, d1, d2);
+		float f1 = player.prevRotationPitch + (player.rotationPitch - player.prevRotationPitch) * f;
+		float f2 = player.prevRotationYaw + (player.rotationYaw - player.prevRotationYaw) * f;
+		double d0 = player.prevPosX + (player.posX - player.prevPosX) * f;
+		double d1 = player.prevPosY + (player.posY - player.prevPosY) * f + (player.worldObj.isRemote ? player.getEyeHeight() - player.getDefaultEyeHeight() : player.getEyeHeight());
+		double d2 = player.prevPosZ + (player.posZ - player.prevPosZ) * f;
+		Vec3 vec3 = player.worldObj.getWorldVec3Pool().getVecFromPool(d0, d1, d2);
 		float f3 = MathHelper.cos(-f2 * 0.017453292F - (float) Math.PI);
 		float f4 = MathHelper.sin(-f2 * 0.017453292F - (float) Math.PI);
 		float f5 = -MathHelper.cos(-f1 * 0.017453292F);
@@ -400,11 +355,11 @@ public class FreerunPlayer {
 		float f7 = f4 * f5;
 		float f8 = f3 * f5;
 		double d3 = 5.0D;
-		if (par2EntityPlayer instanceof EntityPlayerMP) {
-			d3 = ((EntityPlayerMP) par2EntityPlayer).theItemInWorldManager.getBlockReachDistance();
+		if (player instanceof EntityPlayerMP) {
+			d3 = ((EntityPlayerMP) player).theItemInWorldManager.getBlockReachDistance();
 		}
 		Vec3 vec31 = vec3.addVector(f7 * d3, f6 * d3, f8 * d3);
-		return par1World.rayTraceBlocks_do_do(vec3, vec31, par3, !par3);
+		return player.worldObj.rayTraceBlocks_do_do(vec3, vec31, par3, !par3);
 	}
 
 	protected void updateAnimations(float rendertime) {
@@ -483,7 +438,6 @@ public class FreerunPlayer {
 				player.fallDistance = 0.0F;
 				player.motionX = player.motionY = player.motionZ = 0D;
 				if (!situation.canHangStill() && !(move instanceof MoveAroundEdge)) {
-					//mc.ingameGUI.addChatMessage("falling! noooo!");
 					isClimbing = false;
 				} else if (isHangingStill()) {
 					Vec3 vec3d = situation.getHangPositions();
@@ -591,21 +545,6 @@ public class FreerunPlayer {
 		}
 	}
 
-	private void handleInput() {
-		if (FRCommonProxy.properties.enableFreerunToggle) {
-			if (Keyboard.isKeyDown(FRCommonProxy.properties.keyRun)) {
-				if (!freerunKeyEvent) {
-					freeRunning = !freeRunning;
-					freerunKeyEvent = true;
-				}
-			} else {
-				freerunKeyEvent = false;
-			}
-		} else {
-			freeRunning = Keyboard.isKeyDown(FRCommonProxy.properties.keyRun);
-		}
-	}
-
 	private void handleMoves() {
 		Move.onUpdate(this);
 	}
@@ -623,37 +562,5 @@ public class FreerunPlayer {
 	}
 
 	private void handleTimers() {
-	}
-
-	private float roll(float f) {
-		if (!freeRunning || f < 3F) {
-			return f;
-		}
-		float maxFall = 6F;
-		if (f < maxFall) {
-			f /= 2F;
-			return f;
-		}
-		int i = MathHelper.floor_double(player.posX);
-		int j = MathHelper.floor_double(player.boundingBox.minY - 1.1F + player.motionY);
-		int j1 = MathHelper.floor_double(player.boundingBox.minY + 0.1F + player.motionY);
-		int k = MathHelper.floor_double(player.posZ);
-		int b = player.worldObj.getBlockId(i, j, k);
-		if (b == Block.fence.blockID || b == Block.netherFence.blockID || isOnCertainBlock(Block.leaves.blockID) || isOnCertainBlock(FRCommonProxy.barWood.blockID) || player.isInWater()) {
-			f /= 2F;
-			return f;
-		}
-		if (!isMovingForwards()) {
-			f *= 0.8F;
-			return f;
-		}
-		float f1 = 1.0F;
-		double d = -MathHelper.sin((player.rotationYaw / 180F) * 3.141593F) * f1;
-		double d1 = MathHelper.cos((player.rotationYaw / 180F) * 3.141593F) * f1;
-		startRolling();
-		player.setVelocity(d, 0, d1);
-		player.addExhaustion(0.3F);
-		f /= 2F;
-		return f;
 	}
 }

@@ -3,7 +3,7 @@ package balkondeuralpha.freerunner;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.SidedProxy;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 
 @Mod(modid = "freerun", name = "Free Runner Mod", version = "1.0")
 public class FreeRun {
@@ -11,7 +11,7 @@ public class FreeRun {
 	public static FRCommonProxy proxy;
 
 	@EventHandler
-	public void initFreeRun(FMLInitializationEvent event) {
-		proxy.registerThings();
+	public void initFreeRun(FMLPreInitializationEvent event) {
+		proxy.registerThings(event);
 	}
 }

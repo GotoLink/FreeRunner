@@ -1,7 +1,5 @@
 package balkondeuralpha.freerunner;
 
-import java.util.Random;
-
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -11,156 +9,118 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
 
-public class BlockEdge extends Block
-{
-	protected BlockEdge(int i)
-	{
+public class BlockEdge extends Block {
+	protected BlockEdge(int i) {
 		super(i, Material.circuits);
 		this.setCreativeTab(CreativeTabs.tabDecorations);
 	}
-	
+
 	@Override
-	public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int i, int j, int k)
-	{
-		int l = world.getBlockMetadata(i, j, k);
-		float f = 0.125F;
-		if (l == 2)
-		{
-			setBlockBounds(0.0F, 0.7F, 1.0F - f, 1.0F, 1.0F, 1.0F);
-		}
-		if (l == 3)
-		{
-			setBlockBounds(0.0F, 0.7F, 0.0F, 1.0F, 1.0F, f);
-		}
-		if (l == 4)
-		{
-			setBlockBounds(1.0F - f, 0.7F, 0.0F, 1.0F, 1.0F, 1.0F);
-		}
-		if (l == 5)
-		{
-			setBlockBounds(0.0F, 0.7F, 0.0F, f, 1.0F, 1.0F);
-		}
-		
-		return super.getCollisionBoundingBoxFromPool(world, i, j, k);
-	}
-	
-	@SideOnly(Side.CLIENT)
-	public AxisAlignedBB getSelectedBoundingBoxFromPool(World world, int i, int j, int k)
-	{
-		int l = world.getBlockMetadata(i, j, k);
-		float f = 0.125F;
-		
-		if (l == 2)
-		{
-			setBlockBounds(0.0F, 0.7F, 1.0F - f, 1.0F, 1.0F, 1.0F);
-		}
-		if (l == 3)
-		{
-			setBlockBounds(0.0F, 0.7F, 0.0F, 1.0F, 1.0F, f);
-		}
-		if (l == 4)
-		{
-			setBlockBounds(1.0F - f, 0.7F, 0.0F, 1.0F, 1.0F, 1.0F);
-		}
-		if (l == 5)
-		{
-			setBlockBounds(0.0F, 0.7F, 0.0F, f, 1.0F, 1.0F);
-		}
-		
-		return super.getSelectedBoundingBoxFromPool(world, i, j, k);
-	}
-	
-	@Override
-	public boolean isOpaqueCube()
-	{
-		return false;
-	}
-	
-	@Override
-	public boolean renderAsNormalBlock()
-	{
-		return false;
-	}
-	
-	@Override
-	public int getRenderType()
-	{
-		return 8;
-	}
-	
-	@Override
-	public boolean canPlaceBlockAt(World world, int i, int j, int k)
-	{
-		if (world.isBlockNormalCube(i - 1, j, k))
-		{
+	public boolean canPlaceBlockAt(World world, int i, int j, int k) {
+		if (world.isBlockNormalCube(i - 1, j, k)) {
 			return true;
 		}
-		if (world.isBlockNormalCube(i + 1, j, k))
-		{
+		if (world.isBlockNormalCube(i + 1, j, k)) {
 			return true;
 		}
-		if (world.isBlockNormalCube(i, j, k - 1))
-		{
+		if (world.isBlockNormalCube(i, j, k - 1)) {
 			return true;
 		}
 		return world.isBlockNormalCube(i, j, k + 1);
 	}
-	
+
 	@Override
-	public void onPostBlockPlaced(World world, int i, int j, int k, int l)
-	{
-		int i1 = world.getBlockMetadata(i, j, k);
-		if ((i1 == 0 || l == 2) && world.isBlockNormalCube(i, j, k + 1))
-		{
-			i1 = 2;
+	public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int i, int j, int k) {
+		int l = world.getBlockMetadata(i, j, k);
+		float f = 0.125F;
+		if (l == 2) {
+			setBlockBounds(0.0F, 0.7F, 1.0F - f, 1.0F, 1.0F, 1.0F);
 		}
-		if ((i1 == 0 || l == 3) && world.isBlockNormalCube(i, j, k - 1))
-		{
-			i1 = 3;
+		if (l == 3) {
+			setBlockBounds(0.0F, 0.7F, 0.0F, 1.0F, 1.0F, f);
 		}
-		if ((i1 == 0 || l == 4) && world.isBlockNormalCube(i + 1, j, k))
-		{
-			i1 = 4;
+		if (l == 4) {
+			setBlockBounds(1.0F - f, 0.7F, 0.0F, 1.0F, 1.0F, 1.0F);
 		}
-		if ((i1 == 0 || l == 5) && world.isBlockNormalCube(i - 1, j, k))
-		{
-			i1 = 5;
+		if (l == 5) {
+			setBlockBounds(0.0F, 0.7F, 0.0F, f, 1.0F, 1.0F);
 		}
-		world.setBlockMetadataWithNotify(i, j, k, i1, 3);
+		return super.getCollisionBoundingBoxFromPool(world, i, j, k);
 	}
-	
+
 	@Override
-	public void onNeighborBlockChange(World world, int i, int j, int k, int l)
-	{
+	public int getRenderType() {
+		return 8;
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public AxisAlignedBB getSelectedBoundingBoxFromPool(World world, int i, int j, int k) {
+		int l = world.getBlockMetadata(i, j, k);
+		float f = 0.125F;
+		if (l == 2) {
+			setBlockBounds(0.0F, 0.7F, 1.0F - f, 1.0F, 1.0F, 1.0F);
+		}
+		if (l == 3) {
+			setBlockBounds(0.0F, 0.7F, 0.0F, 1.0F, 1.0F, f);
+		}
+		if (l == 4) {
+			setBlockBounds(1.0F - f, 0.7F, 0.0F, 1.0F, 1.0F, 1.0F);
+		}
+		if (l == 5) {
+			setBlockBounds(0.0F, 0.7F, 0.0F, f, 1.0F, 1.0F);
+		}
+		return super.getSelectedBoundingBoxFromPool(world, i, j, k);
+	}
+
+	@Override
+	public boolean isOpaqueCube() {
+		return false;
+	}
+
+	@Override
+	public void onNeighborBlockChange(World world, int i, int j, int k, int l) {
 		int i1 = world.getBlockMetadata(i, j, k);
 		boolean flag = false;
-		if (i1 == 2 && world.isBlockNormalCube(i, j, k + 1))
-		{
+		if (i1 == 2 && world.isBlockNormalCube(i, j, k + 1)) {
 			flag = true;
 		}
-		if (i1 == 3 && world.isBlockNormalCube(i, j, k - 1))
-		{
+		if (i1 == 3 && world.isBlockNormalCube(i, j, k - 1)) {
 			flag = true;
 		}
-		if (i1 == 4 && world.isBlockNormalCube(i + 1, j, k))
-		{
+		if (i1 == 4 && world.isBlockNormalCube(i + 1, j, k)) {
 			flag = true;
 		}
-		if (i1 == 5 && world.isBlockNormalCube(i - 1, j, k))
-		{
+		if (i1 == 5 && world.isBlockNormalCube(i - 1, j, k)) {
 			flag = true;
 		}
-		if (!flag)
-		{
+		if (!flag) {
 			dropBlockAsItem(world, i, j, k, i1, 0);
 			world.setBlockToAir(i, j, k);
 		}
 		super.onNeighborBlockChange(world, i, j, k, l);
 	}
-	
+
 	@Override
-	public int quantityDropped(Random random)
-	{
-		return 1;
+	public void onPostBlockPlaced(World world, int i, int j, int k, int l) {
+		int i1 = world.getBlockMetadata(i, j, k);
+		if ((i1 == 0 || l == 2) && world.isBlockNormalCube(i, j, k + 1)) {
+			i1 = 2;
+		}
+		if ((i1 == 0 || l == 3) && world.isBlockNormalCube(i, j, k - 1)) {
+			i1 = 3;
+		}
+		if ((i1 == 0 || l == 4) && world.isBlockNormalCube(i + 1, j, k)) {
+			i1 = 4;
+		}
+		if ((i1 == 0 || l == 5) && world.isBlockNormalCube(i - 1, j, k)) {
+			i1 = 5;
+		}
+		world.setBlockMetadataWithNotify(i, j, k, i1, 3);
+	}
+
+	@Override
+	public boolean renderAsNormalBlock() {
+		return false;
 	}
 }

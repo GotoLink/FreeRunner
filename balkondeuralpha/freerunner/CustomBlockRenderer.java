@@ -15,13 +15,13 @@ import cpw.mods.fml.relauncher.SideOnly;
 public class CustomBlockRenderer implements ISimpleBlockRenderingHandler {
 	@Override
 	public int getRenderId() {
-		return FRCommonProxy.properties.barWoodModel;
+		return BlockWoodBar.barWoodModel;
 	}
 
 	@Override
 	public void renderInventoryBlock(Block block, int i, int j, RenderBlocks renderblocks) {
 		int k = block.getRenderType();
-		if (k == FRCommonProxy.properties.barWoodModel) {
+		if (k == BlockWoodBar.barWoodModel) {
 			Tessellator tess = Tessellator.instance;
 			float f4 = 1.2F;
 			GL11.glTranslatef(-0.5F, -0.5F, -0.5F);
@@ -47,7 +47,7 @@ public class CustomBlockRenderer implements ISimpleBlockRenderingHandler {
 
 	@Override
 	public boolean renderWorldBlock(IBlockAccess blockAccess, int i, int j, int k, Block block, int m, RenderBlocks renderblocks) {
-		if (m == FRCommonProxy.properties.barWoodModel) {
+		if (m == BlockWoodBar.barWoodModel) {
 			float f = 1.0F;
 			int l = blockAccess.getBlockMetadata(i, j, k);
 			if (l == 2) {
@@ -67,6 +67,6 @@ public class CustomBlockRenderer implements ISimpleBlockRenderingHandler {
 
 	@Override
 	public boolean shouldRender3DInInventory() {
-		return false;
+		return true;
 	}
 }

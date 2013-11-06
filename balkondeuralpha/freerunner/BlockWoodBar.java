@@ -1,7 +1,5 @@
 package balkondeuralpha.freerunner;
 
-import java.util.Random;
-
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -12,6 +10,8 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
 
 public class BlockWoodBar extends Block {
+	public static int barWoodModel;
+
 	protected BlockWoodBar(int i) {
 		super(i, Material.wood);
 		this.setCreativeTab(CreativeTabs.tabDecorations);
@@ -52,7 +52,7 @@ public class BlockWoodBar extends Block {
 
 	@Override
 	public int getRenderType() {
-		return FRCommonProxy.properties.barWoodModel;
+		return barWoodModel;
 	}
 
 	@Override
@@ -105,11 +105,6 @@ public class BlockWoodBar extends Block {
 			i1 = 5;
 		}
 		world.setBlockMetadataWithNotify(i, j, k, i1, 3);
-	}
-
-	@Override
-	public int quantityDropped(Random random) {
-		return 1;
 	}
 
 	@Override

@@ -5,7 +5,6 @@ import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MathHelper;
-import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
@@ -14,15 +13,13 @@ public class Situation {
 	public float blockHeight = 1.0F;
 	public int lookDirection;
 	private int posX, posY, posZ, nextPosX, nextPosY, nextPosZ;
-	private MovingObjectPosition objectMouseOver;
 
-	private Situation(double x, double y, double z, int lookdirection, World world, MovingObjectPosition objectmouseover) {
+	private Situation(double x, double y, double z, int lookdirection, World world) {
 		nextPosX = posX = MathHelper.floor_double(x);
 		nextPosY = posY = (int) Math.ceil(y);
 		nextPosZ = posZ = MathHelper.floor_double(z);
 		lookDirection = lookdirection;
 		worldObj = world;
-		objectMouseOver = objectmouseover;
 	}
 
 	public boolean canClimbAroundEdgeLeft() {
@@ -138,8 +135,7 @@ public class Situation {
 		double x = posX + 0.5D;
 		double y = posY - 0.1D - (1.0F - blockHeight);
 		double z = posZ + 0.5D;
-		Vec3 vec3d = Vec3.createVectorHelper(x, y, z);
-		return vec3d;
+		return Vec3.createVectorHelper(x, y, z);
 	}
 
 	private boolean hasAirAbove(int x, int y, int z, int i) {
@@ -276,11 +272,7 @@ public class Situation {
 		return 0;
 	}
 
-	public static Situation getSituation(double x, double y, double z, int lookdirection, World world, MovingObjectPosition objectmouseover) {
-		return new Situation(x, y, z, lookdirection, world, objectmouseover);
-	}
-
-	public static Situation getSituation(EntityPlayer player, int lookdirection, World world, MovingObjectPosition objectmouseover) {
-		return new Situation(player.posX, player.posY, player.posZ, lookdirection, world, objectmouseover);
+	public static Situation getSituation(EntityPlayer player, int lookdirection, World world) {
+		return new Situation(player.posX, player.posY, player.posZ, lookdirection, world);
 	}
 }
