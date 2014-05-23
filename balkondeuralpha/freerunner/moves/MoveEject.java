@@ -52,7 +52,7 @@ public class MoveEject extends Move {
 			player.addVelocity(d, f, d1);
 		} else {
 			if (!player.worldObj.isRemote) {
-				if (player.getCurrentEquippedItem() != null && player.getCurrentEquippedItem().itemID == FRCommonProxy.climbGlove.itemID) {
+				if (player.getCurrentEquippedItem() != null && player.getCurrentEquippedItem().getItem() == FRCommonProxy.climbGlove) {
 					freerunEngine.isClimbing = false;
 					player.addVelocity(0D, 0.5D, 0D);
 				}

@@ -10,8 +10,8 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
 
 public class BlockEdge extends Block {
-	protected BlockEdge(int i) {
-		super(i, Material.circuits);
+	protected BlockEdge() {
+		super(Material.circuits);
 		this.setCreativeTab(CreativeTabs.tabDecorations);
 	}
 
@@ -79,7 +79,7 @@ public class BlockEdge extends Block {
 	}
 
 	@Override
-	public void onNeighborBlockChange(World world, int i, int j, int k, int l) {
+	public void onNeighborBlockChange(World world, int i, int j, int k, Block l) {
 		int i1 = world.getBlockMetadata(i, j, k);
 		boolean flag = false;
 		if (i1 == 2 && world.isBlockNormalCube(i, j, k + 1)) {

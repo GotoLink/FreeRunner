@@ -6,12 +6,13 @@ import java.util.List;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.EntitiesClassAccess;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Blocks;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.EnumMovingObjectType;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
@@ -30,13 +31,13 @@ public class FreerunPlayer {
 	public boolean isClimbing, wallRunning, freeRunning;
 	public float rollAnimation, prevRollAnimation;
 	public EntityPlayer player;
-	public static List<Integer> climbableBlocks, climbableInside;
+	public static List<Block> climbableBlocks, climbableInside;
 	public static final int LOOK_WEST = 0, LOOK_NORTH = 1, LOOK_EAST = 2, LOOK_SOUTH = 3;
 
 	public FreerunPlayer(EntityPlayer player) {
 		this.player = player;
-		climbableBlocks = new ArrayList<Integer>();
-		climbableInside = new ArrayList<Integer>();
+		climbableBlocks = new ArrayList<Block>();
+		climbableInside = new ArrayList<Block>();
 		setMove(null);
 		Move.addAllMoves(this);
 		freeRunning = false;
@@ -58,28 +59,28 @@ public class FreerunPlayer {
 			if (pitch >= 180F) {
 				pitch -= 270F;
 			}
-			player.setRotation(yaw, pitch);
+            EntitiesClassAccess.setRotation(player, yaw, pitch);
 		}
 	}
 
 	public int canHopOver() {
 		MovingObjectPosition movingobjectposition = getMovingObjectPositionFromPlayer(true);
-		if (movingobjectposition != null && movingobjectposition.typeOfHit == EnumMovingObjectType.TILE) {
+		if (movingobjectposition != null && movingobjectposition.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
 			if (isSelectedBlockClose(movingobjectposition, 2.0F) && isSelectedBlockOnLevel(movingobjectposition, 0)) {
-				int b = getSelectedBlockId(movingobjectposition);
+				Block b = getSelectedBlock(movingobjectposition);
 				Material m = getSelectedBlockMaterial(movingobjectposition);
-				AxisAlignedBB boundingbox = Block.blocksList[b].getCollisionBoundingBoxFromPool(player.worldObj, movingobjectposition.blockX, movingobjectposition.blockY, movingobjectposition.blockZ);
+				AxisAlignedBB boundingbox = b.getCollisionBoundingBoxFromPool(player.worldObj, movingobjectposition.blockX, movingobjectposition.blockY, movingobjectposition.blockZ);
 				if (m.isSolid() && isBlockAboveAir(2, false, isClimbing)) {
 					if (boundingbox != null && boundingbox.maxY - movingobjectposition.blockY > 1.0F) {
 						return 2;
-					} else if (Block.blocksList[b].getBlockBoundsMaxY() > player.stepHeight && Block.blocksList[b].getBlockBoundsMaxY() <= 1.0F && b != Block.stairsWoodOak.blockID
-							&& b != Block.stairsCobblestone.blockID) {
+					} else if (b.getBlockBoundsMaxY() > player.stepHeight && b.getBlockBoundsMaxY() <= 1.0F && b != Blocks.oak_stairs
+							&& b != Blocks.stone_stairs) {
 						return 1;
 					}
 				}
 			}
 		}
-		if (movingobjectposition == null || movingobjectposition.typeOfHit != EnumMovingObjectType.ENTITY || movingobjectposition.entityHit == null) {
+		if (movingobjectposition == null || movingobjectposition.typeOfHit != MovingObjectPosition.MovingObjectType.ENTITY || movingobjectposition.entityHit == null) {
 			return 0;
 		}
 		if (isSelectedEntityClose(movingobjectposition.entityHit, 2.0F) && isSelectedEntityOnLevel(movingobjectposition.entityHit, 0)) {
@@ -104,24 +105,25 @@ public class FreerunPlayer {
 		 * if (player.onGround && !player.worldObj.getBlockMaterial(i, j,
 		 * k).isSolid() && player.worldObj.getBlockMaterial(i1, j,
 		 * k1).isSolid()) { return 1; } else
-		 */if (player.onGround && !player.worldObj.getBlockMaterial(i, j, k).isSolid() && !player.worldObj.getBlockMaterial(i1, j, k1).isSolid()
-				&& player.worldObj.getBlockMaterial(i2, j, k2).isSolid()) {
+		 */if (player.onGround && !player.worldObj.getBlock(i, j, k).getMaterial().isSolid() && !player.worldObj.getBlock(i1, j, k1).getMaterial().isSolid()
+				&& player.worldObj.getBlock(i2, j, k2).getMaterial().isSolid()) {
 			return 2;
 		}
 		return 0;
 	}
 
-	public EntityLiving canLandOnMob(List<Entity> list) {
-		for (Entity ent : list) {
-			if (ent instanceof EntityLiving && isSelectedEntityClose(ent, 3.0F, 0D, player.motionY, 0D))
-				return (EntityLiving) ent;
+	public EntityLiving canLandOnMob(List list) {
+		for (Object ent : list) {
+			if (ent instanceof EntityLiving && isSelectedEntityClose((EntityLiving)ent, 3.0F, 0D, player.motionY, 0D)) {
+                return (EntityLiving) ent;
+            }
 		}
 		return null;
 	}
 
 	public boolean canWallrun() {
 		MovingObjectPosition movingobjectposition = getMovingObjectPositionFromPlayer(true);
-		if (movingobjectposition != null && movingobjectposition.typeOfHit == EnumMovingObjectType.TILE) {
+		if (movingobjectposition != null && movingobjectposition.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
 			if (isSelectedBlockClose(movingobjectposition, 2.0F)) {
 				Material m = getSelectedBlockMaterial(movingobjectposition);
 				Material m1 = getSelectedBlockMaterial(movingobjectposition, 0, 1, 0);
@@ -131,10 +133,10 @@ public class FreerunPlayer {
 				}
 				if (!m1.isSolid()) {
 					if (situation.canPushUp() != 0) {
-						return m.isSolid() && !player.isJumping;
+						return m.isSolid() && !EntitiesClassAccess.isJumping(player);
 					}
 				}
-				return m.isSolid() && m1.isSolid() && !player.isJumping;
+				return m.isSolid() && m1.isSolid() && !EntitiesClassAccess.isJumping(player);
 			}
 		}
 		return false;
@@ -144,12 +146,12 @@ public class FreerunPlayer {
 		return (MathHelper.floor_double(((player.rotationYaw * 4F) / 360F) + 0.5D) & 3);
 	}
 
-	public int getSelectedBlockId(MovingObjectPosition movingobjectposition) {
-		return getSelectedBlockId(movingobjectposition, 0, 0, 0);
+	public Block getSelectedBlock(MovingObjectPosition movingobjectposition) {
+		return getSelectedBlock(movingobjectposition, 0, 0, 0);
 	}
 
-	public int getSelectedBlockId(MovingObjectPosition movingobjectposition, int addX, int addY, int addZ) {
-		return player.worldObj.getBlockId(movingobjectposition.blockX + addX, movingobjectposition.blockY + addY, movingobjectposition.blockZ + addZ);
+	public Block getSelectedBlock(MovingObjectPosition movingobjectposition, int addX, int addY, int addZ) {
+		return player.worldObj.getBlock(movingobjectposition.blockX + addX, movingobjectposition.blockY + addY, movingobjectposition.blockZ + addZ);
 	}
 
 	public Material getSelectedBlockMaterial(MovingObjectPosition movingobjectposition) {
@@ -157,7 +159,7 @@ public class FreerunPlayer {
 	}
 
 	public Material getSelectedBlockMaterial(MovingObjectPosition movingobjectposition, int addX, int addY, int addZ) {
-		return player.worldObj.getBlockMaterial(movingobjectposition.blockX + addX, movingobjectposition.blockY + addY, movingobjectposition.blockZ + addZ);
+		return getSelectedBlock(movingobjectposition, addX, addY, addZ).getMaterial();
 	}
 
 	public void handleThings() {
@@ -172,20 +174,20 @@ public class FreerunPlayer {
 		int i = MathHelper.floor_double(player.posX + d);
 		int j = MathHelper.floor_double(player.boundingBox.minY);
 		int k = MathHelper.floor_double(player.posZ + d1);
-		return player.worldObj.getBlockMaterial(i, j, k).isSolid();
+		return player.worldObj.getBlock(i, j, k).getMaterial().isSolid();
 	}
 
 	public boolean isBlockAboveAir(int l, boolean blockAboveBlockIsSolid, boolean climbing) {
 		MovingObjectPosition movingobjectposition = getMovingObjectPositionFromPlayer(true);
-		if (movingobjectposition == null || movingobjectposition.typeOfHit != EnumMovingObjectType.TILE) {
+		if (movingobjectposition == null || movingobjectposition.typeOfHit != MovingObjectPosition.MovingObjectType.BLOCK) {
 			return false;
 		}
 		int i = movingobjectposition.blockX;
 		int j = movingobjectposition.blockY + 1;
 		int k = movingobjectposition.blockZ;
-		Material m = player.worldObj.getBlockMaterial(i, j, k);
-		Material m1 = player.worldObj.getBlockMaterial(i, j + 1, k);
-		Material m2 = player.worldObj.getBlockMaterial(i, j + 2, k);
+		Material m = player.worldObj.getBlock(i, j, k).getMaterial();
+		Material m1 = player.worldObj.getBlock(i, j + 1, k).getMaterial();
+		Material m2 = player.worldObj.getBlock(i, j + 2, k).getMaterial();
 		if (l == 1) {
 			if (blockAboveBlockIsSolid) {
 				return !m.isSolid() && m1.isSolid();
@@ -229,11 +231,11 @@ public class FreerunPlayer {
 		return player.moveStrafing < 0;
 	}
 
-	public boolean isOnCertainBlock(int blockID) {
+	public boolean isOnCertainBlock(Block blockID) {
 		int i = MathHelper.floor_double(player.posX);
 		int j = MathHelper.floor_double(player.boundingBox.minY - 0.1F + player.motionY);
 		int k = MathHelper.floor_double(player.posZ);
-		return player.worldObj.getBlockId(i, j, k) == blockID;
+		return player.worldObj.getBlock(i, j, k) == blockID;
 	}
 
 	public boolean isRolling() {
@@ -293,10 +295,9 @@ public class FreerunPlayer {
 		}
 		int i = MathHelper.floor_double(player.posX);
 		int j = MathHelper.floor_double(player.boundingBox.minY - 1.1F + player.motionY);
-		int j1 = MathHelper.floor_double(player.boundingBox.minY + 0.1F + player.motionY);
 		int k = MathHelper.floor_double(player.posZ);
-		int b = player.worldObj.getBlockId(i, j, k);
-		if (b == Block.fence.blockID || b == Block.netherFence.blockID || isOnCertainBlock(Block.leaves.blockID) || isOnCertainBlock(FRCommonProxy.barWood.blockID) || player.isInWater()) {
+		Block b = player.worldObj.getBlock(i, j, k);
+		if (b == Blocks.fence || b == Blocks.nether_brick_fence || isOnCertainBlock(Blocks.leaves) || isOnCertainBlock(FRCommonProxy.barWood) || player.isInWater()) {
 			f /= 2F;
 			return f;
 		}
@@ -372,52 +373,51 @@ public class FreerunPlayer {
 		climbableBlocks.clear();
 		climbableInside.clear();
 		//BESIDE
-		climbableBlocks.add(Block.leaves.blockID);
-		climbableBlocks.add(Block.dispenser.blockID);
-		climbableBlocks.add(Block.music.blockID);
-		climbableBlocks.add(Block.bed.blockID);
-		climbableBlocks.add(Block.woodDoubleSlab.blockID);
-		climbableBlocks.add(Block.woodSingleSlab.blockID);
-		climbableBlocks.add(Block.bookShelf.blockID);
-		climbableBlocks.add(Block.tilledField.blockID);
-		climbableBlocks.add(Block.mobSpawner.blockID);
-		climbableBlocks.add(Block.stairsBrick.blockID);
-		climbableBlocks.add(Block.chest.blockID);
-		climbableBlocks.add(Block.workbench.blockID);
-		climbableBlocks.add(Block.furnaceIdle.blockID);
-		climbableBlocks.add(Block.furnaceBurning.blockID);
-		climbableBlocks.add(Block.signWall.blockID);
-		climbableBlocks.add(Block.signPost.blockID);
-		climbableBlocks.add(Block.doorWood.blockID);
-		climbableBlocks.add(Block.doorIron.blockID);
-		climbableBlocks.add(Block.pistonBase.blockID);
-		climbableBlocks.add(Block.pistonStickyBase.blockID);
-		climbableBlocks.add(Block.pistonExtension.blockID);
-		climbableBlocks.add(Block.stairsCobblestone.blockID);
-		climbableBlocks.add(Block.jukebox.blockID);
-		climbableBlocks.add(Block.pumpkin.blockID);
-		climbableBlocks.add(Block.pumpkinLantern.blockID);
-		climbableBlocks.add(Block.fence.blockID);
-		climbableBlocks.add(Block.trapdoor.blockID);
-		climbableBlocks.add(Block.netherFence.blockID);
-		climbableBlocks.add(Block.stairsNetherBrick.blockID);
-		climbableBlocks.add(Block.stairsStoneBrick.blockID);
-		climbableBlocks.add(Block.stairsBrick.blockID);
-		climbableBlocks.add(Block.fenceGate.blockID);
-		climbableBlocks.add(Block.lockedChest.blockID);
-		climbableBlocks.add(Block.enchantmentTable.blockID);
+		climbableBlocks.add(Blocks.leaves);
+		climbableBlocks.add(Blocks.dispenser);
+		climbableBlocks.add(Blocks.music);
+		climbableBlocks.add(Blocks.bed);
+		climbableBlocks.add(Blocks.double_wooden_slab);
+		climbableBlocks.add(Blocks.wooden_slab);
+		climbableBlocks.add(Blocks.bookshelf);
+		climbableBlocks.add(Blocks.farmland);
+		climbableBlocks.add(Blocks.mob_spawner);
+		climbableBlocks.add(Blocks.chest);
+		climbableBlocks.add(Blocks.crafting_table);
+		climbableBlocks.add(Blocks.furnace);
+		climbableBlocks.add(Blocks.lit_furnace);
+		climbableBlocks.add(Blocks.wall_sign);
+		climbableBlocks.add(Blocks.standing_sign);
+		climbableBlocks.add(Blocks.wooden_door);
+		climbableBlocks.add(Blocks.iron_door);
+		climbableBlocks.add(Blocks.piston);
+		climbableBlocks.add(Blocks.sticky_piston);
+		climbableBlocks.add(Blocks.piston_extension);
+		climbableBlocks.add(Blocks.stone_stairs);
+		climbableBlocks.add(Blocks.jukebox);
+		climbableBlocks.add(Blocks.pumpkin);
+		climbableBlocks.add(Blocks.lit_pumpkin);
+		climbableBlocks.add(Blocks.fence);
+		climbableBlocks.add(Blocks.trapdoor);
+		climbableBlocks.add(Blocks.nether_brick_fence);
+		climbableBlocks.add(Blocks.nether_brick_stairs);
+		climbableBlocks.add(Blocks.stone_brick_stairs);
+		climbableBlocks.add(Blocks.brick_stairs);
+		climbableBlocks.add(Blocks.fence_gate);
+		climbableBlocks.add(Blocks.trapped_chest);
+		climbableBlocks.add(Blocks.enchanting_table);
 		if (FRCommonProxy.barWood != null) {
-			climbableBlocks.add(FRCommonProxy.barWood.blockID);
+			climbableBlocks.add(FRCommonProxy.barWood);
 		}
 		//INSIDE
-		climbableInside.add(Block.stoneButton.blockID);
-		climbableInside.add(Block.woodenButton.blockID);
-		climbableInside.add(Block.fenceIron.blockID);
+		climbableInside.add(Blocks.stone_button);
+		climbableInside.add(Blocks.wooden_button);
+		climbableInside.add(Blocks.iron_bars);
 		if (FRCommonProxy.edgeWood != null) {
-			climbableInside.add(FRCommonProxy.edgeWood.blockID);
+			climbableInside.add(FRCommonProxy.edgeWood);
 		}
 		if (FRCommonProxy.edgeStone != null) {
-			climbableInside.add(FRCommonProxy.edgeStone.blockID);
+			climbableInside.add(FRCommonProxy.edgeStone);
 		}
 	}
 
@@ -478,7 +478,7 @@ public class FreerunPlayer {
 						 */
 					}
 				}
-				if (freeRunning && player.isJumping && isHangingStill()) {
+				if (freeRunning && EntitiesClassAccess.isJumping(player) && isHangingStill()) {
 					if (isMovingForwards() && !isWallrunning()) {
 						Move.ejectUp.performMove(player, situation.lookDirection);
 						player.addExhaustion(0.3F);
@@ -500,7 +500,7 @@ public class FreerunPlayer {
 				tryGrabLedge();
 				//Wallkick
 				if (!player.onGround) {
-					if (FRCommonProxy.properties.enableWallKick && isWallrunning() && player.isJumping && move.getAnimationProgress() > 0.3F) {
+					if (FRCommonProxy.properties.enableWallKick && isWallrunning() && EntitiesClassAccess.isJumping(player) && move.getAnimationProgress() > 0.3F) {
 						stopMove();
 						if (isMovingLeft()) {
 							Move.ejectLeft.performMove(player, situation.lookDirection, 0.8F);
@@ -518,17 +518,17 @@ public class FreerunPlayer {
 				if ((isMovingForwards() || player.isCollidedHorizontally) && !isRolling()) {
 					int i = canJumpOverGap();
 					int j = canHopOver();
-					if (!player.isJumping) {
+					if (!EntitiesClassAccess.isJumping(player)) {
 						if (i == 1) {
 							player.addVelocity(0D, 0.35D, 0D);
-							player.isJumping = true;
+                            EntitiesClassAccess.setJumping(player);
 							player.addExhaustion(0.1F);
 						} else if (i == 2) {
-							player.jump();
+                            player.jump();
 						}
 					}
-					if (j == 1 && !player.isJumping) {
-						player.jump();
+					if (j == 1 && !EntitiesClassAccess.isJumping(player)) {
+                        player.jump();
 					} else if (j > 1 || canWallrun()) {
 						Move.wallrun.performMove(player, getLookDirection(), 1.8F);
 						player.addExhaustion(0.8F);

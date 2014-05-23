@@ -12,23 +12,23 @@ import net.minecraft.world.World;
 public class BlockWoodBar extends Block {
 	public static int barWoodModel;
 
-	protected BlockWoodBar(int i) {
-		super(i, Material.wood);
+	protected BlockWoodBar() {
+		super(Material.wood);
 		this.setCreativeTab(CreativeTabs.tabDecorations);
 	}
 
 	@Override
 	public boolean canPlaceBlockAt(World world, int i, int j, int k) {
-		if (world.isBlockNormalCube(i - 1, j, k) || world.getBlockId(i - 1, j, k) == this.blockID) {
+		if (world.isBlockNormalCube(i - 1, j, k) || world.getBlock(i - 1, j, k) == this) {
 			return true;
 		}
-		if (world.isBlockNormalCube(i + 1, j, k) || world.getBlockId(i + 1, j, k) == this.blockID) {
+		if (world.isBlockNormalCube(i + 1, j, k) || world.getBlock(i + 1, j, k) == this) {
 			return true;
 		}
-		if (world.isBlockNormalCube(i, j, k - 1) || world.getBlockId(i, j, k - 1) == this.blockID) {
+		if (world.isBlockNormalCube(i, j, k - 1) || world.getBlock(i, j, k - 1) == this) {
 			return true;
 		}
-		if (world.isBlockNormalCube(i, j, k + 1) || world.getBlockId(i, j, k + 1) == this.blockID) {
+		if (world.isBlockNormalCube(i, j, k + 1) || world.getBlock(i, j, k + 1) == this) {
 			return true;
 		}
 		return false;
@@ -67,19 +67,19 @@ public class BlockWoodBar extends Block {
 	}
 
 	@Override
-	public void onNeighborBlockChange(World world, int i, int j, int k, int l) {
+	public void onNeighborBlockChange(World world, int i, int j, int k, Block l) {
 		int i1 = world.getBlockMetadata(i, j, k);
 		boolean flag = false;
-		if (i1 == 2 && (world.isBlockNormalCube(i, j, k + 1) || world.getBlockId(i, j, k + 1) == this.blockID)) {
+		if (i1 == 2 && (world.isBlockNormalCube(i, j, k + 1) || world.getBlock(i, j, k + 1) == this)) {
 			flag = true;
 		}
-		if (i1 == 3 && (world.isBlockNormalCube(i, j, k - 1) || world.getBlockId(i, j, k - 1) == this.blockID)) {
+		if (i1 == 3 && (world.isBlockNormalCube(i, j, k - 1) || world.getBlock(i, j, k - 1) == this)) {
 			flag = true;
 		}
-		if (i1 == 4 && (world.isBlockNormalCube(i + 1, j, k) || world.getBlockId(i + 1, j, k) == this.blockID)) {
+		if (i1 == 4 && (world.isBlockNormalCube(i + 1, j, k) || world.getBlock(i + 1, j, k) == this)) {
 			flag = true;
 		}
-		if (i1 == 5 && (world.isBlockNormalCube(i - 1, j, k) || world.getBlockId(i - 1, j, k) == this.blockID)) {
+		if (i1 == 5 && (world.isBlockNormalCube(i - 1, j, k) || world.getBlock(i - 1, j, k) == this)) {
 			flag = true;
 		}
 		if (!flag) {
@@ -92,16 +92,16 @@ public class BlockWoodBar extends Block {
 	@Override
 	public void onPostBlockPlaced(World world, int i, int j, int k, int l) {
 		int i1 = world.getBlockMetadata(i, j, k);
-		if ((i1 == 0 || l == 2) && (world.isBlockNormalCube(i, j, k + 1) || world.getBlockId(i, j, k + 1) == this.blockID)) {
+		if ((i1 == 0 || l == 2) && (world.isBlockNormalCube(i, j, k + 1) || world.getBlock(i, j, k + 1) == this)) {
 			i1 = 2;
 		}
-		if ((i1 == 0 || l == 3) && (world.isBlockNormalCube(i, j, k - 1) || world.getBlockId(i, j, k - 1) == this.blockID)) {
+		if ((i1 == 0 || l == 3) && (world.isBlockNormalCube(i, j, k - 1) || world.getBlock(i, j, k - 1) == this)) {
 			i1 = 3;
 		}
-		if ((i1 == 0 || l == 4) && (world.isBlockNormalCube(i + 1, j, k) || world.getBlockId(i + 1, j, k) == this.blockID)) {
+		if ((i1 == 0 || l == 4) && (world.isBlockNormalCube(i + 1, j, k) || world.getBlock(i + 1, j, k) == this)) {
 			i1 = 4;
 		}
-		if ((i1 == 0 || l == 5) && (world.isBlockNormalCube(i - 1, j, k) || world.getBlockId(i - 1, j, k) == this.blockID)) {
+		if ((i1 == 0 || l == 5) && (world.isBlockNormalCube(i - 1, j, k) || world.getBlock(i - 1, j, k) == this)) {
 			i1 = 5;
 		}
 		world.setBlockMetadataWithNotify(i, j, k, i1, 3);

@@ -23,7 +23,6 @@ public class CustomBlockRenderer implements ISimpleBlockRenderingHandler {
 		int k = block.getRenderType();
 		if (k == BlockWoodBar.barWoodModel) {
 			Tessellator tess = Tessellator.instance;
-			float f4 = 1.2F;
 			GL11.glTranslatef(-0.5F, -0.5F, -0.5F);
 			tess.startDrawingQuads();
 			{
@@ -66,7 +65,7 @@ public class CustomBlockRenderer implements ISimpleBlockRenderingHandler {
 	}
 
 	@Override
-	public boolean shouldRender3DInInventory() {
+	public boolean shouldRender3DInInventory(int i) {
 		return true;
 	}
 }

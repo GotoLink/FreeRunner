@@ -7,8 +7,8 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
 
 public class BlockHayStack extends Block {
-	public BlockHayStack(int i) {
-		super(i, FRCommonProxy.materialHay);
+	public BlockHayStack() {
+		super(FRCommonProxy.materialHay);
 		this.setCreativeTab(CreativeTabs.tabDecorations);
 	}
 

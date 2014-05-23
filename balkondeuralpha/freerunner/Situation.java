@@ -3,6 +3,7 @@ package balkondeuralpha.freerunner;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
@@ -113,12 +114,12 @@ public class Situation {
 		} else if (lookDirection == FreerunPlayer.LOOK_SOUTH) {
 			x++;
 		}
-		Material material = worldObj.getBlockMaterial(x, y, z);
+		//Material material = worldObj.getBlockMaterial(x, y, z);
 		//if (material.isSolid())
 		{
 			if (hasAirAbove(x, y, z, 2) && flag) {
 				float f = y;
-				Block block = Block.blocksList[worldObj.getBlockId(x, y, z)];
+				Block block = worldObj.getBlock(x, y, z);
 				if (block != null) {
 					AxisAlignedBB bb = block.getCollisionBoundingBoxFromPool(worldObj, x, y, z);
 					if (bb != null) {
@@ -140,9 +141,9 @@ public class Situation {
 
 	private boolean hasAirAbove(int x, int y, int z, int i) {
 		if (i >= 1) {
-			Material material = worldObj.getBlockMaterial(x, y + 1, z);
+			Material material = worldObj.getBlock(x, y + 1, z).getMaterial();
 			if (i >= 2) {
-				Material material1 = worldObj.getBlockMaterial(x, y + 2, z);
+				Material material1 = worldObj.getBlock(x, y + 2, z).getMaterial();
 				return !material.isSolid() && !material1.isSolid();
 			}
 			return !material.isSolid();
@@ -174,14 +175,14 @@ public class Situation {
 	}
 
 	private boolean hasEdgeOnLocation(int x, int y, int z) {
-		int b = worldObj.getBlockId(x, y - 1, z);
-		int b1 = worldObj.getBlockId(x, y, z);
+		Block b = worldObj.getBlock(x, y - 1, z);
+		Block b1 = worldObj.getBlock(x, y, z);
 		int md = worldObj.getBlockMetadata(x, y - 1, z);
 		int md1 = Situation.getMetaData(lookDirection);
-		if (b1 == Block.vine.blockID || md == 0 || md == md1) {
+		if (b1 == Blocks.vine || md == 0 || md == md1) {
 			if (FreerunPlayer.climbableInside.contains(b)) {
 				return true;
-			} else if (worldObj.getBlockMaterial(x, y, z).isSolid() || worldObj.getBlockMaterial(x, y - 1, z).isSolid()) {
+			} else if (b1.getMaterial().isSolid() || b.getMaterial().isSolid()) {
 				return false;
 			}
 		}
@@ -194,23 +195,26 @@ public class Situation {
 		} else if (lookDirection == FreerunPlayer.LOOK_SOUTH) {
 			x++;
 		}
-		b = worldObj.getBlockId(x, y - 1, z);
-		b1 = worldObj.getBlockId(x, y, z);
+		b = worldObj.getBlock(x, y - 1, z);
+		b1 = worldObj.getBlock(x, y, z);
 		if (FreerunPlayer.climbableInside.contains(b)) {
 			return false;
 		}
 		if (FreerunPlayer.climbableBlocks.contains(b)) {
-			blockHeight = (float) (Block.blocksList[b].getBlockBoundsMaxY());
+			blockHeight = (float) (b.getBlockBoundsMaxY());
 			return true;
 		}
-		if (worldObj.getBlockMaterial(x, y - 1, z).isSolid()) {
+		if (b.getMaterial().isSolid()) {
 			if (b != b1) {
-				blockHeight = (float) (Block.blocksList[b].getBlockBoundsMaxY());
-				return !(((b == Block.stone.blockID || b == 14 || b == 15 || b == 16 || b == 21 || b == 56 || b == 73 || b == 74) && (b1 == Block.stone.blockID || b1 == 14 || b1 == 15 || b1 == 16
-						|| b1 == 21 || b1 == 56 || b1 == 73 || b1 == 74))
-						|| ((b == Block.dirt.blockID || b == Block.grass.blockID) && (b1 == Block.dirt.blockID || b1 == Block.grass.blockID))
-						|| ((b == Block.cobblestone.blockID || b == Block.cobblestoneMossy.blockID || b == Block.stairsCobblestone.blockID) && (b1 == Block.cobblestone.blockID
-								|| b1 == Block.cobblestoneMossy.blockID || b1 == Block.stairsCobblestone.blockID)) || ((b == Block.planks.blockID || b == Block.stairsBrick.blockID) && (b1 == Block.planks.blockID || b1 == Block.stairsBrick.blockID)));
+				blockHeight = (float) (b.getBlockBoundsMaxY());
+				return !(((b == Blocks.stone || b == Blocks.gold_ore || b == Blocks.iron_ore || b == Blocks.coal_ore || b == Blocks.lapis_ore || b == Blocks.diamond_ore || b == Blocks.redstone_ore || b == Blocks.lit_redstone_ore)
+                        && (b1 == Blocks.stone || b1 == Blocks.gold_ore || b1 == Blocks.iron_ore || b1 == Blocks.coal_ore || b1 == Blocks.lapis_ore || b1 == Blocks.diamond_ore || b1 == Blocks.redstone_ore || b1 == Blocks.lit_redstone_ore))
+						|| ((b == Blocks.dirt || b == Blocks.grass)
+                        && (b1 == Blocks.dirt || b1 == Blocks.grass))
+						|| ((b == Blocks.cobblestone || b == Blocks.mossy_cobblestone || b == Blocks.stone_stairs)
+                        && (b1 == Blocks.cobblestone || b1 == Blocks.mossy_cobblestone || b1 == Blocks.stone_stairs))
+                        || ((b == Blocks.planks || b == Blocks.brick_stairs)
+                        && (b1 == Blocks.planks || b1 == Blocks.brick_stairs)));
 			}
 		}
 		blockHeight = 1.0F;

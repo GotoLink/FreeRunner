@@ -1,13 +1,15 @@
 package balkondeuralpha.freerunner;
 
+import cpw.mods.fml.common.FMLCommonHandler;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
-import cpw.mods.fml.common.IPlayerTracker;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
 
@@ -21,37 +23,37 @@ public class FRCommonProxy {
 		properties = new FR_Properties();
 		properties.loadAllProperties(event.getSuggestedConfigurationFile());
 		if (properties.enableEdgeWood) {
-			edgeWood = new BlockEdge(properties.edgeWoodId).setHardness(1.0F).setResistance(5F).setStepSound(Block.soundWoodFootstep).setUnlocalizedName("edgeWood")
-					.setTextureName("freerun:wood-edge");
+			edgeWood = new BlockEdge().setHardness(1.0F).setResistance(5F).setStepSound(Block.soundTypeWood).setBlockName("edgeWood")
+					.setBlockTextureName("freerun:wood-edge");
 			GameRegistry.registerBlock(edgeWood, "Wooden Edge");
-			GameRegistry.addRecipe(new ItemStack(edgeWood, 2), "#X", Character.valueOf('#'), Block.wood, Character.valueOf('X'), Item.stick);
+			GameRegistry.addRecipe(new ItemStack(edgeWood, 2), "#X", '#', Blocks.log, 'X', Items.stick);
 		}
 		if (properties.enableEdgeStone) {
-			edgeStone = new BlockEdge(properties.edgeStoneId).setHardness(2.0F).setResistance(10F).setStepSound(Block.soundStoneFootstep).setUnlocalizedName("edgeStone")
-					.setTextureName("freerun:stone-edge");
+			edgeStone = new BlockEdge().setHardness(2.0F).setResistance(10F).setStepSound(Block.soundTypeStone).setBlockName("edgeStone")
+					.setBlockTextureName("freerun:stone-edge");
 			GameRegistry.registerBlock(edgeStone, "Stone Edge");
-			GameRegistry.addRecipe(new ItemStack(edgeStone, 2), "#X", Character.valueOf('#'), Block.stone, Character.valueOf('X'), Block.cobblestone);
+			GameRegistry.addRecipe(new ItemStack(edgeStone, 2), "#X", '#', Blocks.stone, 'X', Blocks.cobblestone);
 		}
 		if (properties.enableHayStack) {
 			materialHay = new MaterialHay(MapColor.woodColor);
-			hayStack = new BlockHayStack(properties.hayStackId).setHardness(0.5F).setStepSound(Block.soundGrassFootstep).setUnlocalizedName("hayStack").setTextureName("freerun:hay");
-			Block.setBurnProperties(hayStack.blockID, 30, 100);
+			hayStack = new BlockHayStack().setHardness(0.5F).setStepSound(Block.soundTypeGrass).setBlockName("hayStack").setBlockTextureName("freerun:hay");
+            hayStack.setBurnProperties(30, 100);
 			GameRegistry.registerBlock(hayStack, "Haystack");
-			GameRegistry.addRecipe(new ItemStack(hayStack, 4), " # ", "###", Character.valueOf('#'), Item.wheat);
-			GameRegistry.addRecipe(new ItemStack(Item.wheat, 1), "#", Character.valueOf('#'), hayStack);
+			GameRegistry.addRecipe(new ItemStack(hayStack, 4), " # ", "###", '#', Items.wheat);
+			GameRegistry.addRecipe(new ItemStack(Items.wheat, 1), "#", '#', hayStack);
 		}
 		if (properties.enableBarWood) {
-			barWood = new BlockWoodBar(properties.barWoodId).setHardness(2.0F).setResistance(5F).setStepSound(Block.soundWoodFootstep).setUnlocalizedName("barWood").setTextureName("planks");
+			barWood = new BlockWoodBar().setHardness(2.0F).setResistance(5F).setStepSound(Block.soundTypeWood).setBlockName("barWood").setBlockTextureName("planks");
 			GameRegistry.registerBlock(barWood, "Wooden Bar");
-			GameRegistry.addRecipe(new ItemStack(barWood, 4), "###", Character.valueOf('#'), Block.wood);
+			GameRegistry.addRecipe(new ItemStack(barWood, 4), "###", '#', Blocks.log);
 		}
 		if (properties.enableClimbingGlove) {
-			climbGlove = new Item(properties.climbGloveId).setMaxStackSize(1).setUnlocalizedName("climbGlove").setTextureName("freerun:climbglove").setCreativeTab(CreativeTabs.tabTools);
+			climbGlove = new Item().setMaxStackSize(1).setUnlocalizedName("climbGlove").setTextureName("freerun:climbglove").setCreativeTab(CreativeTabs.tabTools);
 			GameRegistry.registerItem(climbGlove, "Climbing Glove");
-			GameRegistry.addRecipe(new ItemStack(climbGlove, 1), " # ", "#X#", Character.valueOf('#'), Item.leather, Character.valueOf('X'), Item.ingotIron);
+			GameRegistry.addRecipe(new ItemStack(climbGlove, 1), " # ", "#X#", '#', Items.leather, 'X', Items.iron_ingot);
 		}
-		IPlayerTracker playerEvent = new PlayerEventHandler();
+		PlayerEventHandler playerEvent = new PlayerEventHandler();
 		MinecraftForge.EVENT_BUS.register(playerEvent);
-		GameRegistry.registerPlayerTracker(playerEvent);
+		FMLCommonHandler.instance().bus().register(playerEvent);
 	}
 }

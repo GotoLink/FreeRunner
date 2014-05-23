@@ -31,11 +31,7 @@ public class RunnerTickHandler {
             if (key.getIsKeyPressed() && !FRCommonProxy.properties.enableFreerunToggle) {
                 runner.freeRunning = true;
             }else if(!key.getIsKeyPressed())
-                if (!FRCommonProxy.properties.enableFreerunToggle) {
-                    runner.freeRunning = false;
-                } else {
-                    runner.freeRunning = !runner.freeRunning;
-                }
+                runner.freeRunning = FRCommonProxy.properties.enableFreerunToggle && !runner.freeRunning;
         }
     }
 }
