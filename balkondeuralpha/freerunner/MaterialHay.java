@@ -5,8 +5,7 @@ import net.minecraft.block.material.Material;
 
 public class MaterialHay extends Material
 {
-	public MaterialHay(MapColor mapcolor)
-	{
+	public MaterialHay(MapColor mapcolor){
 		super(mapcolor);
 		this.setBurning();
 	}

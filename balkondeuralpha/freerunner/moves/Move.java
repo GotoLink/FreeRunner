@@ -10,19 +10,13 @@ public abstract class Move {
 	public float animProgress, prevAnimProgress;
 	protected int lookDirection;
 	protected FreerunPlayer freerunEngine;
-	protected EntityPlayer player;
 	protected double nextMotionX, nextMotionY, nextMotionZ;
 	protected int blockings;
 	protected double[] deltaPos, prevDeltaPos;
-	private static int pauseTimer;
-	protected static boolean paused;
-	public static MoveWallrun wallrun;
-	public static MoveClimb climbUp, climbDown, climbLeft, climbRight;
-	public static MoveClimb climbAroundLeft, climbAroundRight;
-	public static MoveEject ejectUp, ejectBack, ejectLeft, ejectRight;
-	public static MovePushUp pushUp;
-	public static MoveUpBehind upBehind;
-	public static MoveRoll roll;
+    public static final int	DIRECTION_UP	= 1;
+    public static final int	DIRECTION_DOWN	= 2;
+    public static final int	DIRECTION_LEFT	= 3;
+    public static final int	DIRECTION_RIGHT	= 4;
 
 	protected Move(FreerunPlayer freerunhandler) {
 		freerunEngine = freerunhandler;
@@ -51,15 +45,14 @@ public abstract class Move {
 		abortMove();
 	}
 
-	public final void performMove(EntityPlayer entityplayer, int lookdirection) {
-		if (Move.paused) {
+	public final void performMove(int lookdirection) {
+		if (freerunEngine.paused) {
 			return;
 		}
 		lookDirection = lookdirection;
-		player = entityplayer;
-		startPosX = player.posX;
-		startPosY = player.posY;
-		startPosZ = player.posZ;
+		startPosX = getPlayer().posX;
+		startPosY = getPlayer().posY;
+		startPosZ = getPlayer().posZ;
 		freerunEngine.setMove(this);
 	}
 
@@ -88,10 +81,10 @@ public abstract class Move {
 		return blockings < 15;
 	}
 
-	protected void doMoves(EntityPlayer entityplayer) {
-		player.motionX = nextMotionX;
-		player.motionY = nextMotionY;
-		player.motionZ = nextMotionZ;
+	protected void doMoves() {
+        getPlayer().motionX = nextMotionX;
+        getPlayer().motionY = nextMotionY;
+        getPlayer().motionZ = nextMotionZ;
 	}
 
 	private void abortMove() {
@@ -104,38 +97,12 @@ public abstract class Move {
 		}
 	}
 
-	public static void addAllMoves(FreerunPlayer freerunengine) {
-		Move.climbUp = new MoveClimb(freerunengine, MoveClimb.DIRECTION_UP, 0.8F);
-		Move.climbDown = new MoveClimb(freerunengine, MoveClimb.DIRECTION_DOWN, 1.0F);
-		Move.climbLeft = new MoveClimb(freerunengine, MoveClimb.DIRECTION_LEFT, 1.0F);
-		Move.climbRight = new MoveClimb(freerunengine, MoveClimb.DIRECTION_RIGHT, 1.0F);
-		Move.climbAroundLeft = new MoveAroundEdge(freerunengine, MoveClimb.DIRECTION_LEFT, 2.0F);
-		Move.climbAroundRight = new MoveAroundEdge(freerunengine, MoveClimb.DIRECTION_RIGHT, 2.0F);
-		Move.ejectUp = new MoveEject(freerunengine, MoveClimb.DIRECTION_UP);
-		Move.ejectBack = new MoveEject(freerunengine, MoveClimb.DIRECTION_DOWN);
-		Move.ejectLeft = new MoveEject(freerunengine, MoveClimb.DIRECTION_LEFT);
-		Move.ejectRight = new MoveEject(freerunengine, MoveClimb.DIRECTION_RIGHT);
-		Move.wallrun = new MoveWallrun(freerunengine);
-		Move.pushUp = new MovePushUp(freerunengine);
-		Move.upBehind = new MoveUpBehind(freerunengine);
-		Move.roll = new MoveRoll(freerunengine);
+	public void addMovementPause(int ticks) {
+        freerunEngine.paused = true;
+        freerunEngine.pauseTimer = ticks;
 	}
 
-	public static void addMovementPause(int ticks) {
-		Move.paused = true;
-		Move.pauseTimer = ticks;
-	}
-
-	public static void onUpdate(FreerunPlayer freerunengine) {
-		if (!Move.paused) {
-			if (freerunengine.move != null) {
-				freerunengine.move.updateMove();
-			}
-		}
-		if (Move.pauseTimer > 0) {
-			Move.pauseTimer--;
-		} else {
-			Move.paused = false;
-		}
-	}
+    public EntityPlayer getPlayer(){
+        return freerunEngine.player;
+    }
 }

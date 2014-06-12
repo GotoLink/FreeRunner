@@ -1,35 +1,31 @@
 package balkondeuralpha.freerunner;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
-
-import cpw.mods.fml.common.IPlayerTracker;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.SharedMonsterAttributes;
-import net.minecraft.entity.ai.attributes.AttributeInstance;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
-import net.minecraftforge.event.ForgeSubscribe;
+import net.minecraftforge.common.IExtendedEntityProperties;
+import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 
 public class PlayerEventHandler {
 	private static final UUID freerunSpeed = UUID.randomUUID();
-	public static HashMap<String, FreerunPlayer> freeRunners = new HashMap<String, FreerunPlayer>();
 
 	@SubscribeEvent
 	public void afterDamageEntity(LivingHurtEvent event) {
 		if (event.entityLiving instanceof EntityPlayer) {
-			freeRunners.get(((EntityPlayer) event.entityLiving).username).isClimbing = false;
+            FreerunPlayer.get(((EntityPlayer) event.entityLiving)).isClimbing = false;
 		}
 	}
 
@@ -37,7 +33,7 @@ public class PlayerEventHandler {
 	public void beforeFall(LivingFallEvent event) {
 		if (event.entityLiving instanceof EntityPlayer) {
 			EntityPlayer player = (EntityPlayer) event.entityLiving;
-			FreerunPlayer freeRunner = freeRunners.get(player.username);
+			FreerunPlayer freeRunner = FreerunPlayer.get(player);
 			if (freeRunner.freeRunning) {
 				int i = MathHelper.floor_double(player.posX);
 				int j = MathHelper.floor_double(player.boundingBox.minY);
@@ -68,21 +64,11 @@ public class PlayerEventHandler {
 	public void beforeOnUpdate(LivingUpdateEvent event) {
 		if (event.entityLiving instanceof EntityPlayer) {
 			EntityPlayer player = (EntityPlayer) event.entityLiving;
-			FreerunPlayer freeRunner = freeRunners.get(player.username);
-			freeRunner.situation = Situation.getSituation(player, freeRunner.getLookDirection(), player.worldObj);
+			FreerunPlayer freeRunner = FreerunPlayer.get(player);
+			freeRunner.situation = Situation.getSituation(player, freeRunner.getLookDirection());
 			freeRunner.horizontalSpeed = Math.sqrt(player.motionX * player.motionX + player.motionZ * player.motionZ);
-			freeRunner.prevRollAnimation = freeRunner.rollAnimation;
-			if (freeRunner.isRolling()) {
-				freeRunner.rollAnimation += 0.05F;
-			}
-			/*
-			 * if (player.prevPosX != 0D && player.prevPosY != 0D &&
-			 * player.prevPosZ != 0D) { handleStats(player.posX -
-			 * player.prevPosX, player.posY - player.prevPosY, player.posZ -
-			 * player.prevPosZ); }
-			 */
 			freeRunner.handleThings();
-			AttributeInstance atinst = player.getEntityAttribute(SharedMonsterAttributes.movementSpeed);
+			IAttributeInstance atinst = player.getEntityAttribute(SharedMonsterAttributes.movementSpeed);
 			AttributeModifier mod = new AttributeModifier(freerunSpeed, "FreeRunSpeed", getSpeedModifier(player, freeRunner) - 1, 2);
 			if (mod.getAmount() > -1) {
 				if (atinst.getModifier(freerunSpeed) == null) {
@@ -109,13 +95,14 @@ public class PlayerEventHandler {
 		return -1F;
 	}
 
-	@SubscribeEvent
-	public void onPlayerLogin(EntityPlayer player) {
-		freeRunners.put(player.username, new FreerunPlayer(player));
-	}
-
-	@SubscribeEvent
-	public void onPlayerLogout(EntityPlayer player) {
-		freeRunners.remove(player.username);
-	}
+    @SubscribeEvent
+    public void onPlayerConstruction(EntityEvent.EntityConstructing event) {
+        if (event.entity instanceof EntityPlayer) {
+            IExtendedEntityProperties runner = FreerunPlayer.get((EntityPlayer) event.entity);
+            if (runner == null) {
+                runner = new FreerunPlayer((EntityPlayer) event.entity);
+                event.entity.registerExtendedProperties("FreeRun", runner);
+            }
+        }
+    }
 }

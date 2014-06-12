@@ -3,6 +3,7 @@ package balkondeuralpha.freerunner;
 import java.util.ArrayList;
 import java.util.List;
 
+import balkondeuralpha.freerunner.moves.*;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
@@ -12,56 +13,65 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
-import balkondeuralpha.freerunner.moves.Move;
-import balkondeuralpha.freerunner.moves.MoveAroundEdge;
-import balkondeuralpha.freerunner.moves.MoveWallrun;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.world.World;
+import net.minecraftforge.common.IExtendedEntityProperties;
 
-public class FreerunPlayer {
+public class FreerunPlayer implements IExtendedEntityProperties{
 	public Move move;
 	public Situation situation;
+    public int pauseTimer;
+    public boolean paused;
 	public double startPosY, startPosX, startPosZ;
-	private float startRollingYaw, startRollingPitch;
 	public double horizontalSpeed;
 	public boolean isClimbing, wallRunning, freeRunning;
-	public float rollAnimation, prevRollAnimation;
 	public EntityPlayer player;
+    public MoveWallrun wallrun;
+    public MoveClimb climbUp, climbDown, climbLeft, climbRight;
+    public MoveClimb climbAroundLeft, climbAroundRight;
+    public MoveEject ejectUp, ejectBack, ejectLeft, ejectRight;
+    public MovePushUp pushUp;
+    public MoveUpBehind upBehind;
+    public MoveRoll roll;
 	public static List<Block> climbableBlocks, climbableInside;
+    static{
+        addAllClimableBlocks();
+    }
 	public static final int LOOK_WEST = 0, LOOK_NORTH = 1, LOOK_EAST = 2, LOOK_SOUTH = 3;
 
 	public FreerunPlayer(EntityPlayer player) {
 		this.player = player;
-		climbableBlocks = new ArrayList<Block>();
-		climbableInside = new ArrayList<Block>();
-		setMove(null);
-		Move.addAllMoves(this);
 		freeRunning = false;
 		horizontalSpeed = 0D;
-		rollAnimation = 1F;
-		situation = null;
-		addAllClimableBlocks();
+        addAllMoves();
 	}
 
-	@SideOnly(Side.CLIENT)
-	public void animateRoll(float f) {
-		if (Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
-			float yaw = (startRollingYaw + 360F * f);
-			float pitch = (startRollingPitch + 360F * f);
-			//pitch = startRollingPitch;
-			while (yaw >= 360F) {
-				yaw -= 360F;
-			}
-			if (pitch >= 180F) {
-				pitch -= 270F;
-			}
-            EntitiesClassAccess.setRotation(player, yaw, pitch);
-		}
-	}
+    public void addAllMoves() {
+        climbUp = new MoveClimb(this, Move.DIRECTION_UP, 0.8F);
+        climbDown = new MoveClimb(this, Move.DIRECTION_DOWN, 1.0F);
+        climbLeft = new MoveClimb(this, Move.DIRECTION_LEFT, 1.0F);
+        climbRight = new MoveClimb(this, Move.DIRECTION_RIGHT, 1.0F);
+        climbAroundLeft = new MoveAroundEdge(this, Move.DIRECTION_LEFT, 2.0F);
+        climbAroundRight = new MoveAroundEdge(this, Move.DIRECTION_RIGHT, 2.0F);
+        ejectUp = new MoveEject(this, Move.DIRECTION_UP);
+        ejectBack = new MoveEject(this, Move.DIRECTION_DOWN);
+        ejectLeft = new MoveEject(this, Move.DIRECTION_LEFT);
+        ejectRight = new MoveEject(this, Move.DIRECTION_RIGHT);
+        wallrun = new MoveWallrun(this);
+        pushUp = new MovePushUp(this);
+        upBehind = new MoveUpBehind(this);
+        roll = new MoveRoll(this);
+    }
+
+    public static FreerunPlayer get(EntityPlayer entityPlayer){
+        return (FreerunPlayer) entityPlayer.getExtendedProperties("FreeRun");
+    }
 
 	public int canHopOver() {
 		MovingObjectPosition movingobjectposition = getMovingObjectPositionFromPlayer(true);
@@ -239,7 +249,7 @@ public class FreerunPlayer {
 	}
 
 	public boolean isRolling() {
-		return rollAnimation < 1F;
+		return roll.animProgress < 1F;
 	}
 
 	public boolean isSelectedBlockClose(MovingObjectPosition movingobjectposition, float f) {
@@ -308,7 +318,7 @@ public class FreerunPlayer {
 		float f1 = 1.0F;
 		double d = -MathHelper.sin((player.rotationYaw / 180F) * 3.141593F) * f1;
 		double d1 = MathHelper.cos((player.rotationYaw / 180F) * 3.141593F) * f1;
-		startRolling();
+        roll.start();
 		player.setVelocity(d, 0, d1);
 		player.addExhaustion(0.3F);
 		f /= 2F;
@@ -317,12 +327,6 @@ public class FreerunPlayer {
 
 	public void setMove(Move move) {
 		this.move = move;
-	}
-
-	public void startRolling() {
-		rollAnimation = 0F;
-		startRollingYaw = player.rotationYaw;
-		startRollingPitch = player.rotationPitch;
 	}
 
 	public void stopMove() {
@@ -360,22 +364,18 @@ public class FreerunPlayer {
 			d3 = ((EntityPlayerMP) player).theItemInWorldManager.getBlockReachDistance();
 		}
 		Vec3 vec31 = vec3.addVector(f7 * d3, f6 * d3, f8 * d3);
-		return player.worldObj.rayTraceBlocks_do_do(vec3, vec31, par3, !par3);
+		return player.worldObj.func_147447_a(vec3, vec31, par3, !par3, false);
 	}
 
-	protected void updateAnimations(float rendertime) {
-		if (isRolling()) {
-			animateRoll(prevRollAnimation + (rollAnimation - prevRollAnimation) * rendertime);
-		}
-	}
-
-	private void addAllClimableBlocks() {
+	private static void addAllClimableBlocks() {
+        climbableBlocks = new ArrayList<Block>();
+        climbableInside = new ArrayList<Block>();
 		climbableBlocks.clear();
 		climbableInside.clear();
 		//BESIDE
 		climbableBlocks.add(Blocks.leaves);
 		climbableBlocks.add(Blocks.dispenser);
-		climbableBlocks.add(Blocks.music);
+		climbableBlocks.add(Blocks.noteblock);
 		climbableBlocks.add(Blocks.bed);
 		climbableBlocks.add(Blocks.double_wooden_slab);
 		climbableBlocks.add(Blocks.wooden_slab);
@@ -448,21 +448,21 @@ public class FreerunPlayer {
 					if (isMovingForwards()) {
 						float y = situation.canPushUp();
 						if (situation.canJumpUpBehind()) {
-							Move.upBehind.performMove(player, lookdirection);
+							upBehind.performMove(lookdirection);
 							player.addExhaustion(0.3F);
 						} else if (situation.canClimbUp()) {
-							Move.climbUp.performMove(player, lookdirection);
+							climbUp.performMove(lookdirection);
 						} else if (y != 0) {
-							Move.pushUp.performMove(player, lookdirection, y);
+							pushUp.performMove(lookdirection);
 							player.addExhaustion(0.3F);
 						}
 					} else if (isMovingBackwards()) {
 						if (situation.canClimbDown()) {
-							Move.climbDown.performMove(player, lookdirection);
+							climbDown.performMove(lookdirection);
 						}
 					} else if (isMovingLeft()) {
 						if (situation.canClimbLeft()) {
-							Move.climbLeft.performMove(player, lookdirection);
+							climbLeft.performMove(lookdirection);
 						}/*
 						 * else if (situation.canClimbAroundEdgeLeft()) {
 						 * FR_Move.climbAroundLeft.performMove(player,
@@ -470,7 +470,7 @@ public class FreerunPlayer {
 						 */
 					} else if (isMovingRight()) {
 						if (situation.canClimbRight()) {
-							Move.climbRight.performMove(player, lookdirection);
+							climbRight.performMove(lookdirection);
 						}/*
 						 * else if (situation.canClimbAroundEdgeRight()) {
 						 * FR_Move.climbAroundRight.performMove(player,
@@ -480,16 +480,16 @@ public class FreerunPlayer {
 				}
 				if (freeRunning && EntitiesClassAccess.isJumping(player) && isHangingStill()) {
 					if (isMovingForwards() && !isWallrunning()) {
-						Move.ejectUp.performMove(player, situation.lookDirection);
+						ejectUp.performMove(situation.lookDirection);
 						player.addExhaustion(0.3F);
 					} else if (isMovingLeft()) {
-						Move.ejectLeft.performMove(player, situation.lookDirection);
+						ejectLeft.performMove(situation.lookDirection);
 						player.addExhaustion(0.3F);
 					} else if (isMovingRight()) {
-						Move.ejectRight.performMove(player, situation.lookDirection);
+						ejectRight.performMove(situation.lookDirection);
 						player.addExhaustion(0.3F);
 					} else {
-						Move.ejectBack.performMove(player, situation.lookDirection);
+						ejectBack.performMove(situation.lookDirection);
 						player.addExhaustion(0.3F);
 					}
 				}
@@ -503,13 +503,13 @@ public class FreerunPlayer {
 					if (FRCommonProxy.properties.enableWallKick && isWallrunning() && EntitiesClassAccess.isJumping(player) && move.getAnimationProgress() > 0.3F) {
 						stopMove();
 						if (isMovingLeft()) {
-							Move.ejectLeft.performMove(player, situation.lookDirection, 0.8F);
+							ejectLeft.performMove(situation.lookDirection, 0.8F);
 							player.addExhaustion(0.3F);
 						} else if (isMovingRight()) {
-							Move.ejectRight.performMove(player, situation.lookDirection, 0.8F);
+							ejectRight.performMove(situation.lookDirection, 0.8F);
 							player.addExhaustion(0.3F);
 						} else {
-							Move.ejectBack.performMove(player, situation.lookDirection, 0.8F);
+							ejectBack.performMove(situation.lookDirection, 0.8F);
 							player.addExhaustion(0.3F);
 						}
 					}
@@ -530,7 +530,7 @@ public class FreerunPlayer {
 					if (j == 1 && !EntitiesClassAccess.isJumping(player)) {
                         player.jump();
 					} else if (j > 1 || canWallrun()) {
-						Move.wallrun.performMove(player, getLookDirection(), 1.8F);
+						wallrun.performMove(getLookDirection(), 1.8F);
 						player.addExhaustion(0.8F);
 					}
 				}
@@ -546,21 +546,34 @@ public class FreerunPlayer {
 	}
 
 	private void handleMoves() {
-		Move.onUpdate(this);
-	}
-
-	private void handleStats(double d, double d1, double d2) {
-		/*
-		 * if (player.ridingEntity != null) { return; } if (isClimbing) {
-		 * player.addStat(StatList.distanceClimbedStat, (int) Math.round(d1 *
-		 * 100D)); } else if (!player.isInsideOfMaterial(Material.water) &&
-		 * !player.isInWater() && !player.isOnLadder() && !player.onGround) {
-		 * int l = Math.round(MathHelper.sqrt_double(d * d + d2 * d2) * 100F);
-		 * if (l > 25 && freeRunning) {
-		 * player.addStat(StatList.distanceFlownStat, -l); } }
-		 */
+        if (!paused) {
+            if (move != null) {
+                move.updateMove();
+            }
+        }
+        if (pauseTimer > 0) {
+            pauseTimer--;
+        } else {
+            paused = false;
+        }
 	}
 
 	private void handleTimers() {
 	}
+
+    @Override
+    public void saveNBTData(NBTTagCompound compound) {
+        NBTTagCompound tags = new NBTTagCompound();
+        compound.setTag("FreeRun", tags);
+    }
+
+    @Override
+    public void loadNBTData(NBTTagCompound compound) {
+        NBTTagCompound tags = compound.getCompoundTag("FreeRun");
+    }
+
+    @Override
+    public void init(Entity entity, World world) {
+
+    }
 }

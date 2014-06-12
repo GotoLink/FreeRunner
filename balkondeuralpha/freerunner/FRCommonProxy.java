@@ -37,9 +37,9 @@ public class FRCommonProxy {
 		if (properties.enableHayStack) {
 			materialHay = new MaterialHay(MapColor.woodColor);
 			hayStack = new BlockHayStack().setHardness(0.5F).setStepSound(Block.soundTypeGrass).setBlockName("hayStack").setBlockTextureName("freerun:hay");
-            hayStack.setBurnProperties(30, 100);
-			GameRegistry.registerBlock(hayStack, "Haystack");
-			GameRegistry.addRecipe(new ItemStack(hayStack, 4), " # ", "###", '#', Items.wheat);
+            GameRegistry.registerBlock(hayStack, "Haystack");
+            Blocks.fire.setFireInfo(hayStack, 30, 100);
+            GameRegistry.addRecipe(new ItemStack(hayStack, 4), " # ", "###", '#', Items.wheat);
 			GameRegistry.addRecipe(new ItemStack(Items.wheat, 1), "#", '#', hayStack);
 		}
 		if (properties.enableBarWood) {

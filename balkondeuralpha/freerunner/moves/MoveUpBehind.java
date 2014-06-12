@@ -2,114 +2,87 @@ package balkondeuralpha.freerunner.moves;
 
 import balkondeuralpha.freerunner.FreerunPlayer;
 
-public class MoveUpBehind extends Move
-{
-	
-	public MoveUpBehind(FreerunPlayer freerunhandler)
-	{
+public class MoveUpBehind extends Move{
+    private final float	limitSpeed	= 0.5F;
+    private boolean		yDone;
+    private boolean		xzDone;
+	public MoveUpBehind(FreerunPlayer freerunhandler){
 		super(freerunhandler);
 		yDone = xzDone = false;
 	}
 	
 	@Override
-	public void updateMove()
-	{
+	public void updateMove(){
 		super.updateMove();
 		float yspeed = 0.05F;
 		float xzspeed = 0.05F;
-		if (!yDone)
-		{
-			if (player.posY - startPosY <= 1.4F)
-			{
+		if (!yDone)	{
+			if (getPlayer().posY - startPosY <= 1.4F){
 				nextMotionY += yspeed;
-			} else
-			{
+			} else{
 				yDone = true;
 			}
 		}
 		
-		if (!xzDone)
-		{
-			if (lookDirection == FreerunPlayer.LOOK_WEST)
-			{
-				if (player.posZ - startPosZ >= -1.0F)
-				{
+		if (!xzDone){
+			if (lookDirection == FreerunPlayer.LOOK_WEST){
+				if (getPlayer().posZ - startPosZ >= -1.0F){
 					nextMotionZ -= xzspeed;
-				} else
-				{
+				} else{
 					xzDone = true;
 				}
-			} else if (lookDirection == FreerunPlayer.LOOK_NORTH)
-			{
-				if (player.posX - startPosX <= 1.0F)
-				{
+			} else if (lookDirection == FreerunPlayer.LOOK_NORTH){
+				if (getPlayer().posX - startPosX <= 1.0F){
 					nextMotionX += xzspeed;
-				} else
-				{
+				} else{
 					xzDone = true;
 				}
-			} else if (lookDirection == FreerunPlayer.LOOK_EAST)
-			{
-				if (player.posZ - startPosZ <= 1.0F)
-				{
+			} else if (lookDirection == FreerunPlayer.LOOK_EAST){
+				if (getPlayer().posZ - startPosZ <= 1.0F){
 					nextMotionZ += xzspeed;
-				} else
-				{
+				} else{
 					xzDone = true;
 				}
-			} else if (lookDirection == FreerunPlayer.LOOK_SOUTH)
-			{
-				if (player.posX - startPosX >= -1.0F)
-				{
+			} else if (lookDirection == FreerunPlayer.LOOK_SOUTH){
+				if (getPlayer().posX - startPosX >= -1.0F){
 					nextMotionX -= xzspeed;
-				} else
-				{
+				} else{
 					xzDone = true;
 				}
 			}
 		}
 		
-		if (nextMotionX > limitSpeed)
-		{
+		if (nextMotionX > limitSpeed){
 			nextMotionX = limitSpeed;
-		} else if (nextMotionX < -limitSpeed)
-		{
+		} else if (nextMotionX < -limitSpeed){
 			nextMotionX = -limitSpeed;
 		}
 		
-		if (nextMotionY > limitSpeed)
-		{
+		if (nextMotionY > limitSpeed){
 			nextMotionY = limitSpeed;
 		}
 		
-		if (nextMotionZ > limitSpeed)
-		{
+		if (nextMotionZ > limitSpeed){
 			nextMotionZ = limitSpeed;
-		} else if (nextMotionZ < -limitSpeed)
-		{
+		} else if (nextMotionZ < -limitSpeed){
 			nextMotionZ = -limitSpeed;
 		}
 		
-		if (yDone)
-		{
+		if (yDone){
 			nextMotionY = 0D;
 		}
-		if (xzDone)
-		{
+		if (xzDone)	{
 			nextMotionX = 0D;
 			nextMotionZ = 0D;
-			if (yDone)
-			{
+			if (yDone){
 				moveDone();
 			}
 		}
-		
-		doMoves(player);
+		doMoves();
 	}
 	
 	@Override
-	public void moveDone()
-	{
+	public void moveDone(){
 		xzDone = false;
 		yDone = false;
 		freerunEngine.tryGrabLedge();
@@ -121,8 +94,4 @@ public class MoveUpBehind extends Move
 	{
 		return 0F;
 	}
-	
-	private final float	limitSpeed	= 0.5F;
-	private boolean		yDone;
-	private boolean		xzDone;
 }

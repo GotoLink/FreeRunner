@@ -10,10 +10,10 @@ public class FRClientProxy extends FRCommonProxy {
 	@Override
 	public void registerThings(FMLPreInitializationEvent event) {
 		super.registerThings(event);
-		FreerunPlayer free = new FreerunPlayer(Minecraft.getMinecraft().thePlayer);
-		FMLCommonHandler.instance().bus().register(new RunnerTickHandler(free));
+		FMLCommonHandler.instance().bus().register(new RunnerTickHandler());
 		BlockWoodBar.barWoodModel = RenderingRegistry.getNextAvailableRenderId();
 		RenderingRegistry.registerBlockHandler(new CustomBlockRenderer());
-		MinecraftForge.EVENT_BUS.register(new Animator(free));
+        if (properties.enableAnimations)
+		    MinecraftForge.EVENT_BUS.register(new Animator());
 	}
 }

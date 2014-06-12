@@ -1,103 +1,83 @@
 package balkondeuralpha.freerunner.moves;
 
 import balkondeuralpha.freerunner.FreerunPlayer;
-import net.minecraft.entity.player.EntityPlayer;
 
-public class MovePushUp extends Move
-{
-	protected MovePushUp(FreerunPlayer freerunhandler)
+public class MovePushUp extends Move{
+    private float		yLimit;
+    private final float	distance	= 1.0F;
+    private final float	speed		= 0.01F;
+    private final float	limitSpeed	= 0.1F;
+	public MovePushUp(FreerunPlayer freerunhandler)
 	{
 		super(freerunhandler);
 	}
 	
 	@Override
-	public void updateMove()
-	{
+	public void updateMove(){
 		super.updateMove();
-		if (player.boundingBox.minY <= yLimit + 1.0F)
-		{
+		if (getPlayer().boundingBox.minY <= yLimit + 1.0F){
 			nextMotionY += speed;
-			doMoves(player);
-		} else
-		{
+			doMoves();
+		} else{
 			//moveDone();
 		}
 		
-		if (lookDirection == FreerunPlayer.LOOK_WEST)
-		{
-			if (player.posZ - startPosZ <= distance)
-			{
+		if (lookDirection == FreerunPlayer.LOOK_WEST){
+			if (getPlayer().posZ - startPosZ <= distance){
 				nextMotionZ += speed;
-			} else
-			{
+			} else{
 				moveDone();
 			}
 			
-		} else if (lookDirection == FreerunPlayer.LOOK_NORTH)
-		{
-			if (player.posX - startPosX >= -distance)
-			{
+		} else if (lookDirection == FreerunPlayer.LOOK_NORTH){
+			if (getPlayer().posX - startPosX >= -distance){
 				nextMotionX -= speed;
-			} else
-			{
+			} else{
 				moveDone();
 			}
 			
-		} else if (lookDirection == FreerunPlayer.LOOK_EAST)
-		{
-			if (player.posZ - startPosZ >= -distance)
-			{
+		} else if (lookDirection == FreerunPlayer.LOOK_EAST){
+			if (getPlayer().posZ - startPosZ >= -distance){
 				nextMotionZ -= speed;
-			} else
-			{
+			} else{
 				moveDone();
 			}
 			
-		} else if (lookDirection == FreerunPlayer.LOOK_SOUTH)
-		{
-			if (player.posX - startPosX <= distance)
-			{
+		} else if (lookDirection == FreerunPlayer.LOOK_SOUTH){
+			if (getPlayer().posX - startPosX <= distance){
 				nextMotionX += speed;
-			} else
-			{
+			} else{
 				moveDone();
 			}
 		}
 		
-		if (nextMotionX > limitSpeed)
-		{
+		if (nextMotionX > limitSpeed){
 			nextMotionX = limitSpeed;
-		} else if (nextMotionX < -limitSpeed)
-		{
+		} else if (nextMotionX < -limitSpeed){
 			nextMotionX = -limitSpeed;
 		}
 		
-		if (nextMotionY > limitSpeed)
-		{
+		if (nextMotionY > limitSpeed){
 			nextMotionY = limitSpeed;
 		}
 		
-		if (nextMotionZ > limitSpeed)
-		{
+		if (nextMotionZ > limitSpeed){
 			nextMotionZ = limitSpeed;
-		} else if (nextMotionZ < -limitSpeed)
-		{
+		} else if (nextMotionZ < -limitSpeed){
 			nextMotionZ = -limitSpeed;
 		}
 	}
 	
 	@Override
-	protected void doMoves(EntityPlayer entityplayer)
-	{
-		entityplayer.motionX = nextMotionX;
-		entityplayer.motionY = nextMotionY;
-		entityplayer.motionZ = nextMotionZ;
+	protected void doMoves(){
+        getPlayer().motionX = nextMotionX;
+        getPlayer().motionY = nextMotionY;
+        getPlayer().motionZ = nextMotionZ;
 	}
 	
-	public void performMove(EntityPlayer entityplayer, int lookdirection, float y)
-	{
+	public void performMove(int lookdirection, float y)	{
 		yLimit = y;
-		performMove(entityplayer, lookdirection);
+		performMove(lookdirection);
 	}
 	
 	@Override
@@ -105,9 +85,4 @@ public class MovePushUp extends Move
 	{
 		return 0F;
 	}
-	
-	private float		yLimit;
-	private final float	distance	= 1.0F;
-	private final float	speed		= 0.01F;
-	private final float	limitSpeed	= 0.1F;
 }

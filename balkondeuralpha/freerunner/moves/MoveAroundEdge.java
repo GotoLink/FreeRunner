@@ -1,48 +1,38 @@
 package balkondeuralpha.freerunner.moves;
 
 import balkondeuralpha.freerunner.FreerunPlayer;
-import net.minecraft.entity.player.EntityPlayer;
 
-public class MoveAroundEdge extends MoveClimb
-{
-	protected MoveAroundEdge(FreerunPlayer freerunhandler, int direction, float distance)
-	{
+public class MoveAroundEdge extends MoveClimb{
+    private boolean		sideDone;
+    private boolean		forwardDone;
+    private final float	speed		= 0.05F;
+    private final float	limitSpeed	= 0.1F;
+	public MoveAroundEdge(FreerunPlayer freerunhandler, int direction, float distance){
 		super(freerunhandler, direction, distance);
 		sideDone = forwardDone = false;
 	}
 	
 	@Override
-	public void updateMove()
-	{
-		if (direction == MoveClimb.DIRECTION_LEFT)
-		{
-			if (lookDirection == FreerunPlayer.LOOK_WEST)
-			{
-				player.setPosition(player.posX + 2D, player.posY, player.posZ + 2D);
-			} else if (lookDirection == FreerunPlayer.LOOK_NORTH)
-			{
-				player.setPosition(player.posX - 2D, player.posY, player.posZ + 2D);
-			} else if (lookDirection == FreerunPlayer.LOOK_EAST)
-			{
-				player.setPosition(player.posX - 2D, player.posY, player.posZ - 2D);
-			} else if (lookDirection == FreerunPlayer.LOOK_SOUTH)
-			{
-				player.setPosition(player.posX + 2D, player.posY, player.posZ - 2D);
+	public void updateMove(){
+		if (direction == DIRECTION_LEFT){
+			if (lookDirection == FreerunPlayer.LOOK_WEST){
+                getPlayer().setPosition(getPlayer().posX + 2D, getPlayer().posY, getPlayer().posZ + 2D);
+			} else if (lookDirection == FreerunPlayer.LOOK_NORTH){
+                getPlayer().setPosition(getPlayer().posX - 2D, getPlayer().posY, getPlayer().posZ + 2D);
+			} else if (lookDirection == FreerunPlayer.LOOK_EAST){
+                getPlayer().setPosition(getPlayer().posX - 2D, getPlayer().posY, getPlayer().posZ - 2D);
+			} else if (lookDirection == FreerunPlayer.LOOK_SOUTH){
+                getPlayer().setPosition(getPlayer().posX + 2D, getPlayer().posY, getPlayer().posZ - 2D);
 			}
-		} else if (direction == MoveClimb.DIRECTION_RIGHT)
-		{
-			if (lookDirection == FreerunPlayer.LOOK_WEST)
-			{
-				player.setPosition(player.posX - 2D, player.posY, player.posZ - 1D);
-			} else if (lookDirection == FreerunPlayer.LOOK_NORTH)
-			{
-				player.setPosition(player.posX + 1D, player.posY, player.posZ - 2D);
-			} else if (lookDirection == FreerunPlayer.LOOK_EAST)
-			{
-				player.setPosition(player.posX + 2D, player.posY, player.posZ + 1D);
-			} else if (lookDirection == FreerunPlayer.LOOK_SOUTH)
-			{
-				player.setPosition(player.posX - 1D, player.posY, player.posZ + 2D);
+		} else if (direction == DIRECTION_RIGHT){
+			if (lookDirection == FreerunPlayer.LOOK_WEST){
+                getPlayer().setPosition(getPlayer().posX - 2D, getPlayer().posY, getPlayer().posZ - 1D);
+			} else if (lookDirection == FreerunPlayer.LOOK_NORTH){
+                getPlayer().setPosition(getPlayer().posX + 1D, getPlayer().posY, getPlayer().posZ - 2D);
+			} else if (lookDirection == FreerunPlayer.LOOK_EAST){
+                getPlayer().setPosition(getPlayer().posX + 2D, getPlayer().posY, getPlayer().posZ + 1D);
+			} else if (lookDirection == FreerunPlayer.LOOK_SOUTH){
+                getPlayer().setPosition(getPlayer().posX - 1D, getPlayer().posY, getPlayer().posZ + 2D);
 			}
 		}
 		moveDone();
@@ -228,26 +218,22 @@ public class MoveAroundEdge extends MoveClimb
 	}
 	
 	@Override
-	public void moveDone()
-	{
+	public void moveDone(){
 		sideDone = false;
 		forwardDone = false;
-		if (direction == MoveClimb.DIRECTION_LEFT)
-		{
-			player.rotationYaw += 90F;
-		} else if (direction == MoveClimb.DIRECTION_RIGHT)
-		{
-			player.rotationYaw -= 90F;
+		if (direction == DIRECTION_LEFT){
+            getPlayer().rotationYaw += 90F;
+		} else if (direction == DIRECTION_RIGHT){
+            getPlayer().rotationYaw -= 90F;
 		}
 		freerunEngine.tryGrabLedge();
 		super.moveDone();
 	}
 	
 	@Override
-	public void doMoves(EntityPlayer entityplayer)
-	{
-		entityplayer.motionX = nextMotionX;
-		entityplayer.motionZ = nextMotionZ;
+	public void doMoves(){
+        getPlayer().motionX = nextMotionX;
+        getPlayer().motionZ = nextMotionZ;
 	}
 	
 	@Override
@@ -255,9 +241,4 @@ public class MoveAroundEdge extends MoveClimb
 	{
 		return 0F;
 	}
-	
-	private boolean		sideDone;
-	private boolean		forwardDone;
-	private final float	speed		= 0.05F;
-	private final float	limitSpeed	= 0.1F;
 }

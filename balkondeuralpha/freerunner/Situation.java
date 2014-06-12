@@ -114,9 +114,8 @@ public class Situation {
 		} else if (lookDirection == FreerunPlayer.LOOK_SOUTH) {
 			x++;
 		}
-		//Material material = worldObj.getBlockMaterial(x, y, z);
-		//if (material.isSolid())
-		{
+		Material material = worldObj.getBlock(x, y, z).getMaterial();
+		if (material.isSolid()){
 			if (hasAirAbove(x, y, z, 2) && flag) {
 				float f = y;
 				Block block = worldObj.getBlock(x, y, z);
@@ -178,7 +177,7 @@ public class Situation {
 		Block b = worldObj.getBlock(x, y - 1, z);
 		Block b1 = worldObj.getBlock(x, y, z);
 		int md = worldObj.getBlockMetadata(x, y - 1, z);
-		int md1 = Situation.getMetaData(lookDirection);
+		int md1 = getMetaData();
 		if (b1 == Blocks.vine || md == 0 || md == md1) {
 			if (FreerunPlayer.climbableInside.contains(b)) {
 				return true;
@@ -207,10 +206,8 @@ public class Situation {
 		if (b.getMaterial().isSolid()) {
 			if (b != b1) {
 				blockHeight = (float) (b.getBlockBoundsMaxY());
-				return !(((b == Blocks.stone || b == Blocks.gold_ore || b == Blocks.iron_ore || b == Blocks.coal_ore || b == Blocks.lapis_ore || b == Blocks.diamond_ore || b == Blocks.redstone_ore || b == Blocks.lit_redstone_ore)
-                        && (b1 == Blocks.stone || b1 == Blocks.gold_ore || b1 == Blocks.iron_ore || b1 == Blocks.coal_ore || b1 == Blocks.lapis_ore || b1 == Blocks.diamond_ore || b1 == Blocks.redstone_ore || b1 == Blocks.lit_redstone_ore))
-						|| ((b == Blocks.dirt || b == Blocks.grass)
-                        && (b1 == Blocks.dirt || b1 == Blocks.grass))
+				return !(((isStoneOre(b)) && (isStoneOre(b1)))
+						|| ((b == Blocks.dirt || b == Blocks.grass) && (b1 == Blocks.dirt || b1 == Blocks.grass))
 						|| ((b == Blocks.cobblestone || b == Blocks.mossy_cobblestone || b == Blocks.stone_stairs)
                         && (b1 == Blocks.cobblestone || b1 == Blocks.mossy_cobblestone || b1 == Blocks.stone_stairs))
                         || ((b == Blocks.planks || b == Blocks.brick_stairs)
@@ -220,6 +217,10 @@ public class Situation {
 		blockHeight = 1.0F;
 		return false;
 	}
+
+    public static boolean isStoneOre(Block b){
+        return b == Blocks.stone || b == Blocks.gold_ore || b == Blocks.iron_ore || b == Blocks.coal_ore || b == Blocks.lapis_ore || b == Blocks.diamond_ore || b == Blocks.redstone_ore || b == Blocks.lit_redstone_ore;
+    }
 
 	private boolean hasEdgeRight() {
 		boolean b = false;
@@ -263,20 +264,20 @@ public class Situation {
 		return b;
 	}
 
-	public static int getMetaData(int lookdirection) {
-		if (lookdirection == FreerunPlayer.LOOK_WEST) {
+	public int getMetaData() {
+		if (lookDirection == FreerunPlayer.LOOK_WEST) {
 			return 2;
-		} else if (lookdirection == FreerunPlayer.LOOK_NORTH) {
+		} else if (lookDirection == FreerunPlayer.LOOK_NORTH) {
 			return 5;
-		} else if (lookdirection == FreerunPlayer.LOOK_EAST) {
+		} else if (lookDirection == FreerunPlayer.LOOK_EAST) {
 			return 3;
-		} else if (lookdirection == FreerunPlayer.LOOK_SOUTH) {
+		} else if (lookDirection == FreerunPlayer.LOOK_SOUTH) {
 			return 4;
 		}
 		return 0;
 	}
 
-	public static Situation getSituation(EntityPlayer player, int lookdirection, World world) {
-		return new Situation(player.posX, player.posY, player.posZ, lookdirection, world);
+	public static Situation getSituation(EntityPlayer player, int lookdirection) {
+		return new Situation(player.posX, player.posY, player.posZ, lookdirection, player.worldObj);
 	}
 }

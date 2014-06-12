@@ -19,16 +19,20 @@ public class BlockWoodBar extends Block {
 
 	@Override
 	public boolean canPlaceBlockAt(World world, int i, int j, int k) {
-		if (world.isBlockNormalCube(i - 1, j, k) || world.getBlock(i - 1, j, k) == this) {
+        Block test = world.getBlock(i - 1, j, k);
+		if (test == this || test.isNormalCube(world, i - 1, j, k)) {
 			return true;
 		}
-		if (world.isBlockNormalCube(i + 1, j, k) || world.getBlock(i + 1, j, k) == this) {
+        test = world.getBlock(i + 1, j, k);
+		if (test == this || test.isNormalCube(world, i + 1, j, k)) {
 			return true;
 		}
-		if (world.isBlockNormalCube(i, j, k - 1) || world.getBlock(i, j, k - 1) == this) {
+        test = world.getBlock(i, j, k - 1);
+		if (test == this || test.isNormalCube(world, i, j, k - 1)) {
 			return true;
 		}
-		if (world.isBlockNormalCube(i, j, k + 1) || world.getBlock(i, j, k + 1) == this) {
+        test = world.getBlock(i, j, k + 1);
+		if (test == this || test.isNormalCube(world, i, j, k + 1)) {
 			return true;
 		}
 		return false;
@@ -70,16 +74,20 @@ public class BlockWoodBar extends Block {
 	public void onNeighborBlockChange(World world, int i, int j, int k, Block l) {
 		int i1 = world.getBlockMetadata(i, j, k);
 		boolean flag = false;
-		if (i1 == 2 && (world.isBlockNormalCube(i, j, k + 1) || world.getBlock(i, j, k + 1) == this)) {
+        Block test = world.getBlock(i, j, k + 1);
+		if (i1 == 2 && (test == this || test.isNormalCube(world, i, j, k + 1))) {
 			flag = true;
 		}
-		if (i1 == 3 && (world.isBlockNormalCube(i, j, k - 1) || world.getBlock(i, j, k - 1) == this)) {
+        test = world.getBlock(i, j, k - 1);
+		if (i1 == 3 && (test == this || test.isNormalCube(world, i, j, k - 1))) {
 			flag = true;
 		}
-		if (i1 == 4 && (world.isBlockNormalCube(i + 1, j, k) || world.getBlock(i + 1, j, k) == this)) {
+        test = world.getBlock(i + 1, j, k);
+		if (i1 == 4 && (test == this || test.isNormalCube(world, i + 1, j, k))) {
 			flag = true;
 		}
-		if (i1 == 5 && (world.isBlockNormalCube(i - 1, j, k) || world.getBlock(i - 1, j, k) == this)) {
+        test = world.getBlock(i - 1, j, k);
+		if (i1 == 5 && (test == this || test.isNormalCube(world, i - 1, j, k))) {
 			flag = true;
 		}
 		if (!flag) {
@@ -92,16 +100,20 @@ public class BlockWoodBar extends Block {
 	@Override
 	public void onPostBlockPlaced(World world, int i, int j, int k, int l) {
 		int i1 = world.getBlockMetadata(i, j, k);
-		if ((i1 == 0 || l == 2) && (world.isBlockNormalCube(i, j, k + 1) || world.getBlock(i, j, k + 1) == this)) {
+        Block test = world.getBlock(i, j, k + 1);
+		if ((i1 == 0 || l == 2) && (test == this || test.isNormalCube(world, i, j, k + 1))) {
 			i1 = 2;
 		}
-		if ((i1 == 0 || l == 3) && (world.isBlockNormalCube(i, j, k - 1) || world.getBlock(i, j, k - 1) == this)) {
+        test = world.getBlock(i, j, k - 1);
+		if ((i1 == 0 || l == 3) && (test == this || test.isNormalCube(world, i, j, k - 1))) {
 			i1 = 3;
 		}
-		if ((i1 == 0 || l == 4) && (world.isBlockNormalCube(i + 1, j, k) || world.getBlock(i + 1, j, k) == this)) {
+        test = world.getBlock(i + 1, j, k);
+		if ((i1 == 0 || l == 4) && (test == this || test.isNormalCube(world, i + 1, j, k))) {
 			i1 = 4;
 		}
-		if ((i1 == 0 || l == 5) && (world.isBlockNormalCube(i - 1, j, k) || world.getBlock(i - 1, j, k) == this)) {
+        test = world.getBlock(i - 1, j, k);
+		if ((i1 == 0 || l == 5) && (test == this || test.isNormalCube(world, i - 1, j, k))) {
 			i1 = 5;
 		}
 		world.setBlockMetadataWithNotify(i, j, k, i1, 3);

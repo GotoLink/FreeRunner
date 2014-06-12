@@ -14,4 +14,5 @@ public class FreeRun {
 	public void initFreeRun(FMLPreInitializationEvent event) {
 		proxy.registerThings(event);
 	}
+
 }

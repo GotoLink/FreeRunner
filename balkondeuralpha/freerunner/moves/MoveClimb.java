@@ -2,120 +2,121 @@ package balkondeuralpha.freerunner.moves;
 
 import balkondeuralpha.freerunner.FreerunPlayer;
 
-public class MoveClimb extends Move
-{
-	protected MoveClimb(FreerunPlayer freerunhandler, int direction, float distance)
-	{
+public class MoveClimb extends Move{
+    protected int			direction;
+    protected float			distance;
+    protected final float	speed			= 0.03F;
+    protected final float	limitSpeed		= 0.1F;
+	public MoveClimb(FreerunPlayer freerunhandler, int direction, float distance){
 		super(freerunhandler);
 		this.direction = direction;
 		this.distance = distance;
 	}
 	
 	@Override
-	public void updateMove()
-	{
+	public void updateMove(){
 		super.updateMove();
-		if (direction == MoveClimb.DIRECTION_UP)
+		if (direction == DIRECTION_UP)
 		{
-			if (player.posY - startPosY <= distance)
+			if (getPlayer().posY - startPosY <= distance)
 			{
 				nextMotionY += speed;
-				doMoves(player);
+				doMoves();
 			} else
 			{
 				moveDone();
 			}
-		} else if (direction == MoveClimb.DIRECTION_DOWN)
+		} else if (direction == DIRECTION_DOWN)
 		{
-			if (player.posY - startPosY >= -distance)
+			if (getPlayer().posY - startPosY >= -distance)
 			{
 				nextMotionY -= speed;
-				doMoves(player);
+				doMoves();
 			} else
 			{
 				moveDone();
 			}
-		} else if (direction == MoveClimb.DIRECTION_LEFT)
+		} else if (direction == DIRECTION_LEFT)
 		{
 			if (lookDirection == FreerunPlayer.LOOK_WEST)
 			{
-				if (player.posX - startPosX <= distance)
+				if (getPlayer().posX - startPosX <= distance)
 				{
 					nextMotionX += speed;
-					doMoves(player);
+					doMoves();
 				} else
 				{
 					moveDone();
 				}
 			} else if (lookDirection == FreerunPlayer.LOOK_NORTH)
 			{
-				if (player.posZ - startPosZ <= distance)
+				if (getPlayer().posZ - startPosZ <= distance)
 				{
 					nextMotionZ += speed;
-					doMoves(player);
+					doMoves();
 				} else
 				{
 					moveDone();
 				}
 			} else if (lookDirection == FreerunPlayer.LOOK_EAST)
 			{
-				if (player.posX - startPosX >= -distance)
+				if (getPlayer().posX - startPosX >= -distance)
 				{
 					nextMotionX -= speed;
-					doMoves(player);
+					doMoves();
 				} else
 				{
 					moveDone();
 				}
 			} else if (lookDirection == FreerunPlayer.LOOK_SOUTH)
 			{
-				if (player.posZ - startPosZ >= -distance)
+				if (getPlayer().posZ - startPosZ >= -distance)
 				{
 					nextMotionZ -= speed;
-					doMoves(player);
+					doMoves();
 				} else
 				{
 					moveDone();
 				}
 			}
-		} else if (direction == MoveClimb.DIRECTION_RIGHT)
+		} else if (direction == DIRECTION_RIGHT)
 		{
 			if (lookDirection == FreerunPlayer.LOOK_WEST)
 			{
-				if (player.posX - startPosX >= -distance)
+				if (getPlayer().posX - startPosX >= -distance)
 				{
 					nextMotionX -= speed;
-					doMoves(player);
+					doMoves();
 				} else
 				{
 					moveDone();
 				}
 			} else if (lookDirection == FreerunPlayer.LOOK_NORTH)
 			{
-				if (player.posZ - startPosZ >= -distance)
+				if (getPlayer().posZ - startPosZ >= -distance)
 				{
 					nextMotionZ -= speed;
-					doMoves(player);
+					doMoves();
 				} else
 				{
 					moveDone();
 				}
 			} else if (lookDirection == FreerunPlayer.LOOK_EAST)
 			{
-				if (player.posX - startPosX <= distance)
+				if (getPlayer().posX - startPosX <= distance)
 				{
 					nextMotionX += speed;
-					doMoves(player);
+					doMoves();
 				} else
 				{
 					moveDone();
 				}
 			} else if (lookDirection == FreerunPlayer.LOOK_SOUTH)
 			{
-				if (player.posZ - startPosZ <= distance)
+				if (getPlayer().posZ - startPosZ <= distance)
 				{
 					nextMotionZ += speed;
-					doMoves(player);
+					doMoves();
 				} else
 				{
 					moveDone();
@@ -146,10 +147,9 @@ public class MoveClimb extends Move
 	}
 	
 	@Override
-	public void moveDone()
-	{
+	public void moveDone(){
 		int i = direction > 2 ? 5 : 10;
-		Move.addMovementPause(i);
+		addMovementPause(i);
 		super.moveDone();
 	}
 	
@@ -158,13 +158,4 @@ public class MoveClimb extends Move
 	{
 		return 0F;
 	}
-	
-	protected int			direction;
-	protected float			distance;
-	protected final float	speed			= 0.03F;
-	protected final float	limitSpeed		= 0.1F;
-	public static final int	DIRECTION_LEFT	= 3;
-	public static final int	DIRECTION_RIGHT	= 4;
-	public static final int	DIRECTION_UP	= 1;
-	public static final int	DIRECTION_DOWN	= 2;
 }
