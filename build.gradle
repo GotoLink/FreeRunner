@@ -16,13 +16,13 @@ buildscript {
 }
 apply plugin: 'forge'
 minecraft {
-    version = "1.7.10-10.13.0.1184"
+    version = "1.7.10-10.13.0.1208"
     runDir = "eclipse/assets"
 }
 version = "0.1"
 archivesBaseName = project.projectDir.name
 sourceSets.main.java{srcDirs project.projectDir.getPath() include("balkondeuralpha/**" , "net/minecraft/**")}
-sourceSets.main.resources{srcDirs project.projectDir.getPath() include("assets/**")}
+sourceSets.main.resources{srcDirs project.projectDir.getPath() include("*.info", "*.mcmeta" , "META-INF/**","assets/**")}
 processResources {
     // this will ensure that this task is redone when the versions change.
     inputs.property "version", project.version
@@ -36,5 +36,16 @@ processResources {
     // copy everything else, thats not mcmod.info
     from(project.sourceSets.main.resources.srcDirs) {
         include("assets/**", "pack.mcmeta")
+    }
+}
+jar {
+    //Keep the jar as clean as possible
+    includeEmptyDirs = false
+    //Append with minecraft version
+    classifier = "("+minecraft.version+")"
+    archiveName = archivesBaseName + "-" + version + classifier+"."+extension
+    // Add Coremod Manifest
+    manifest {
+        attributes 'FMLAT': "freerun_at.cfg"
     }
 }

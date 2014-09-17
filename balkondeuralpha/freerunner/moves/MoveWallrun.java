@@ -1,6 +1,6 @@
 package balkondeuralpha.freerunner.moves;
 
-import balkondeuralpha.freerunner.AnimWallrun;
+import balkondeuralpha.freerunner.FreeRun;
 import balkondeuralpha.freerunner.FreerunPlayer;
 
 public class MoveWallrun extends Move{
@@ -9,7 +9,7 @@ public class MoveWallrun extends Move{
     private final float	limitSpeed	= 0.2F;
 	public MoveWallrun(FreerunPlayer freerunhandler){
 		super(freerunhandler);
-		animation = new AnimWallrun();
+        FreeRun.proxy.setAnimation(this);
 	}
 	
 	@Override
@@ -26,10 +26,12 @@ public class MoveWallrun extends Move{
 			nextMotionY = limitSpeed;
 		}
 	}
-	
-	public void performMove(int lookdirection, float distance){
-		performMove(lookdirection);
-		this.distance = distance;
+
+    @Override
+	public void performMove(int lookdirection){
+		super.performMove(lookdirection);
+		this.distance = 1.8F;
+        getPlayer().addExhaustion(0.8F);
 	}
 	
 	@Override

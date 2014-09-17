@@ -9,7 +9,14 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Situation {
+    private static List<Block> climbableBlocks, climbableInside;
+    static{
+        addAllClimableBlocks();
+    }
 	private World worldObj;
 	public float blockHeight = 1.0F;
 	public int lookDirection;
@@ -91,10 +98,6 @@ public class Situation {
 
 	public boolean canHangStill() {
 		return hasEdgeOnLocation(posX, posY, posZ);
-	}
-
-	public boolean canJumpUpBehind() {
-		return hasEdgeUpBehind();
 	}
 
 	public float canPushUp() {
@@ -179,7 +182,7 @@ public class Situation {
 		int md = worldObj.getBlockMetadata(x, y - 1, z);
 		int md1 = getMetaData();
 		if (b1 == Blocks.vine || md == 0 || md == md1) {
-			if (FreerunPlayer.climbableInside.contains(b)) {
+			if (climbableInside.contains(b)) {
 				return true;
 			} else if (b1.getMaterial().isSolid() || b.getMaterial().isSolid()) {
 				return false;
@@ -196,10 +199,10 @@ public class Situation {
 		}
 		b = worldObj.getBlock(x, y - 1, z);
 		b1 = worldObj.getBlock(x, y, z);
-		if (FreerunPlayer.climbableInside.contains(b)) {
+		if (climbableInside.contains(b)) {
 			return false;
 		}
-		if (FreerunPlayer.climbableBlocks.contains(b)) {
+		if (climbableBlocks.contains(b)) {
 			blockHeight = (float) (b.getBlockBoundsMaxY());
 			return true;
 		}
@@ -245,7 +248,7 @@ public class Situation {
 		return hasEdgeOnLocation(posX, nextPosY, posZ);
 	}
 
-	private boolean hasEdgeUpBehind() {
+	public boolean hasEdgeUpBehind() {
 		boolean b = false;
 		nextPosY = posY + 2;
 		if (lookDirection == FreerunPlayer.LOOK_WEST) {
@@ -280,4 +283,56 @@ public class Situation {
 	public static Situation getSituation(EntityPlayer player, int lookdirection) {
 		return new Situation(player.posX, player.posY, player.posZ, lookdirection, player.worldObj);
 	}
+
+    private static void addAllClimableBlocks() {
+        climbableBlocks = new ArrayList<Block>();
+        climbableInside = new ArrayList<Block>();
+        //BESIDE
+        climbableBlocks.add(Blocks.leaves);
+        climbableBlocks.add(Blocks.dispenser);
+        climbableBlocks.add(Blocks.noteblock);
+        climbableBlocks.add(Blocks.bed);
+        climbableBlocks.add(Blocks.double_wooden_slab);
+        climbableBlocks.add(Blocks.wooden_slab);
+        climbableBlocks.add(Blocks.bookshelf);
+        climbableBlocks.add(Blocks.farmland);
+        climbableBlocks.add(Blocks.mob_spawner);
+        climbableBlocks.add(Blocks.chest);
+        climbableBlocks.add(Blocks.crafting_table);
+        climbableBlocks.add(Blocks.furnace);
+        climbableBlocks.add(Blocks.lit_furnace);
+        climbableBlocks.add(Blocks.wall_sign);
+        climbableBlocks.add(Blocks.standing_sign);
+        climbableBlocks.add(Blocks.wooden_door);
+        climbableBlocks.add(Blocks.iron_door);
+        climbableBlocks.add(Blocks.piston);
+        climbableBlocks.add(Blocks.sticky_piston);
+        climbableBlocks.add(Blocks.piston_extension);
+        climbableBlocks.add(Blocks.stone_stairs);
+        climbableBlocks.add(Blocks.jukebox);
+        climbableBlocks.add(Blocks.pumpkin);
+        climbableBlocks.add(Blocks.lit_pumpkin);
+        climbableBlocks.add(Blocks.fence);
+        climbableBlocks.add(Blocks.trapdoor);
+        climbableBlocks.add(Blocks.nether_brick_fence);
+        climbableBlocks.add(Blocks.nether_brick_stairs);
+        climbableBlocks.add(Blocks.stone_brick_stairs);
+        climbableBlocks.add(Blocks.brick_stairs);
+        climbableBlocks.add(Blocks.fence_gate);
+        climbableBlocks.add(Blocks.trapped_chest);
+        climbableBlocks.add(Blocks.enchanting_table);
+        if (FRCommonProxy.barWood != null) {
+            climbableBlocks.add(FRCommonProxy.barWood);
+        }
+        //INSIDE
+        climbableInside.add(Blocks.stone_button);
+        climbableInside.add(Blocks.wooden_button);
+        climbableInside.add(Blocks.iron_bars);
+        if (FRCommonProxy.edgeWood != null) {
+            climbableInside.add(FRCommonProxy.edgeWood);
+        }
+        if (FRCommonProxy.edgeStone != null) {
+            climbableInside.add(FRCommonProxy.edgeStone);
+        }
+    }
 }

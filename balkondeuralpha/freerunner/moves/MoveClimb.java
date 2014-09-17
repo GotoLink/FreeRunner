@@ -1,6 +1,7 @@
 package balkondeuralpha.freerunner.moves;
 
 import balkondeuralpha.freerunner.FreerunPlayer;
+import balkondeuralpha.freerunner.Situation;
 
 public class MoveClimb extends Move{
     protected int			direction;
@@ -145,6 +146,19 @@ public class MoveClimb extends Move{
 			nextMotionZ = -limitSpeed;
 		}
 	}
+
+    @Override
+    public boolean canPerform(Situation situation){
+        if(direction == DIRECTION_UP)
+            situation.canClimbUp();
+        else if(direction == DIRECTION_DOWN)
+            situation.canClimbDown();
+        else if(direction == DIRECTION_LEFT)
+            situation.canClimbLeft();
+        else if(direction == DIRECTION_RIGHT)
+            situation.canClimbRight();
+        return false;
+    }
 	
 	@Override
 	public void moveDone(){

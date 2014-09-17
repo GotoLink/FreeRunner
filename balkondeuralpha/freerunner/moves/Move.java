@@ -1,11 +1,15 @@
 package balkondeuralpha.freerunner.moves;
 
-import balkondeuralpha.freerunner.Animation;
+import balkondeuralpha.freerunner.animations.Animation;
 import balkondeuralpha.freerunner.FreerunPlayer;
+import balkondeuralpha.freerunner.Situation;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.entity.player.EntityPlayer;
 
 public abstract class Move {
 	public double startPosX, startPosY, startPosZ;
+    @SideOnly(Side.CLIENT)
 	protected Animation animation;
 	public float animProgress, prevAnimProgress;
 	protected int lookDirection;
@@ -35,9 +39,15 @@ public abstract class Move {
 		return Math.sqrt(dx * dx + dy * dy + dz * dz);
 	}
 
+    @SideOnly(Side.CLIENT)
 	public final Animation getAnimation() {
 		return animation;
 	}
+
+    @SideOnly(Side.CLIENT)
+    public final void setAnimation(Animation animation) {
+        this.animation = animation;
+    }
 
 	public abstract float getAnimationProgress();
 
@@ -45,7 +55,11 @@ public abstract class Move {
 		abortMove();
 	}
 
-	public final void performMove(int lookdirection) {
+    public boolean canPerform(Situation situation){
+        return false;
+    }
+
+	public void performMove(int lookdirection) {
 		if (freerunEngine.paused) {
 			return;
 		}

@@ -1,6 +1,6 @@
 package balkondeuralpha.freerunner.moves;
 
-import balkondeuralpha.freerunner.AnimRoll;
+import balkondeuralpha.freerunner.FreeRun;
 import balkondeuralpha.freerunner.FreerunPlayer;
 import net.minecraft.util.MathHelper;
 
@@ -10,8 +10,8 @@ public class MoveRoll extends Move{
     private final int	finished	= 16;
 	public MoveRoll(FreerunPlayer freerunhandler){
 		super(freerunhandler);
-        animation = new AnimRoll(getPlayer());
         animProgress = 1F;
+        FreeRun.proxy.setAnimation(this);
 	}
 	
 	@Override
@@ -54,6 +54,6 @@ public class MoveRoll extends Move{
 
     public void start(){
         animProgress = 0F;
-        ((AnimRoll)animation).set(this);
+        FreeRun.proxy.startAnimation(this);
     }
 }

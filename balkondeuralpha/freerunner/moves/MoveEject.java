@@ -26,8 +26,14 @@ public class MoveEject extends Move {
 
 	public void performMove(int lookdirection, float power) {
 		this.power = power;
-		performMove(lookdirection);
+		this.performMove(lookdirection);
 	}
+
+    @Override
+    public void performMove(int look){
+        super.performMove(look);
+        getPlayer().addExhaustion(0.3F);
+    }
 
 	@Override
 	public void updateMove() {

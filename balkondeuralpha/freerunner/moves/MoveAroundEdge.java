@@ -1,6 +1,7 @@
 package balkondeuralpha.freerunner.moves;
 
 import balkondeuralpha.freerunner.FreerunPlayer;
+import balkondeuralpha.freerunner.Situation;
 
 public class MoveAroundEdge extends MoveClimb{
     private boolean		sideDone;
@@ -216,6 +217,15 @@ public class MoveAroundEdge extends MoveClimb{
 		
 		//doMoves(player);
 	}
+
+    @Override
+    public boolean canPerform(Situation situation){
+        if(direction==DIRECTION_LEFT)
+            return situation.canClimbAroundEdgeLeft();
+        else if(direction==DIRECTION_RIGHT)
+            return situation.canClimbAroundEdgeRight();
+        return false;
+    }
 	
 	@Override
 	public void moveDone(){

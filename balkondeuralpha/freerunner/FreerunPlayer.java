@@ -1,6 +1,7 @@
 package balkondeuralpha.freerunner;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import balkondeuralpha.freerunner.moves.*;
@@ -29,17 +30,13 @@ public class FreerunPlayer implements IExtendedEntityProperties{
 	public double horizontalSpeed;
 	public boolean isClimbing, wallRunning, freeRunning;
 	public EntityPlayer player;
-    public MoveWallrun wallrun;
-    public MoveClimb climbUp, climbDown, climbLeft, climbRight;
-    public MoveClimb climbAroundLeft, climbAroundRight;
-    public MoveEject ejectUp, ejectBack, ejectLeft, ejectRight;
-    public MovePushUp pushUp;
-    public MoveUpBehind upBehind;
-    public MoveRoll roll;
-	public static List<Block> climbableBlocks, climbableInside;
-    static{
-        addAllClimableBlocks();
-    }
+    //Cached available moves
+    private Move wallrun, pushUp, upBehind;
+    private MoveClimb climbUp, climbDown, climbLeft, climbRight;
+    private MoveClimb climbAroundLeft, climbAroundRight;
+    private MoveEject ejectUp, ejectBack, ejectLeft, ejectRight;
+    private MoveRoll roll;
+
 	public static final int LOOK_WEST = 0, LOOK_NORTH = 1, LOOK_EAST = 2, LOOK_SOUTH = 3;
 
 	public FreerunPlayer(EntityPlayer player) {
@@ -99,23 +96,15 @@ public class FreerunPlayer implements IExtendedEntityProperties{
 	}
 
 	public int canJumpOverGap() {
-		double d = -MathHelper.sin((player.rotationYaw / 180F) * 3.141593F) * MathHelper.cos((0 / 180F) * 3.141593F);
-		double d1 = MathHelper.cos((player.rotationYaw / 180F) * 3.141593F) * MathHelper.cos((0 / 180F) * 3.141593F);
-		int i = MathHelper.floor_double(player.posX);
-		int i1 = MathHelper.floor_double(player.posX + d);
-		int i2 = MathHelper.floor_double(player.posX + 2 * d);
 		int j = MathHelper.floor_double(player.boundingBox.minY - 0.1F);
-		int k = MathHelper.floor_double(player.posZ);
-		int k1 = MathHelper.floor_double(player.posZ + d1);
-		int k2 = MathHelper.floor_double(player.posZ + 2 * d1);
-		/*
-		 * if (player.onGround && !player.worldObj.getBlockMaterial(i, j,
-		 * k).isSolid() && player.worldObj.getBlockMaterial(i1, j,
-		 * k1).isSolid()) { return 1; } else
-		 */if (player.onGround && !player.worldObj.getBlock(i, j, k).getMaterial().isSolid() && !player.worldObj.getBlock(i1, j, k1).getMaterial().isSolid()
-				&& player.worldObj.getBlock(i2, j, k2).getMaterial().isSolid()) {
-			return 2;
-		}
+		if (player.onGround && !player.worldObj.getBlock(MathHelper.floor_double(player.posX), j, MathHelper.floor_double(player.posZ)).getMaterial().isSolid()) {
+            double d = -MathHelper.sin((player.rotationYaw / 180F) * (float) Math.PI);
+            double d1 = MathHelper.cos((player.rotationYaw / 180F) * (float) Math.PI);
+            if (player.worldObj.getBlock(MathHelper.floor_double(player.posX + d), j, MathHelper.floor_double(player.posZ + d1)).getMaterial().isSolid())
+                return 1;
+            else if (player.worldObj.getBlock(MathHelper.floor_double(player.posX + 2 * d), j, MathHelper.floor_double(player.posZ + 2 * d1)).getMaterial().isSolid())
+                return 2;
+        }
 		return 0;
 	}
 
@@ -172,12 +161,11 @@ public class FreerunPlayer implements IExtendedEntityProperties{
 	public void handleThings() {
 		handleFreerunning();
 		handleMoves();
-		handleTimers();
 	}
 
 	public boolean hasBlockInFront() {
-		double d = -MathHelper.sin((player.rotationYaw / 180F) * 3.141593F) * MathHelper.cos((0 / 180F) * 3.141593F);
-		double d1 = MathHelper.cos((player.rotationYaw / 180F) * 3.141593F) * MathHelper.cos((0 / 180F) * 3.141593F);
+		double d = -MathHelper.sin((player.rotationYaw / 180F) * (float) Math.PI);
+		double d1 = MathHelper.cos((player.rotationYaw / 180F) * (float) Math.PI);
 		int i = MathHelper.floor_double(player.posX + d);
 		int j = MathHelper.floor_double(player.boundingBox.minY);
 		int k = MathHelper.floor_double(player.posZ + d1);
@@ -291,35 +279,8 @@ public class FreerunPlayer implements IExtendedEntityProperties{
 		return move instanceof MoveWallrun;
 	}
 
-	public float roll(float f) {
-		if (!freeRunning || f < 3F) {
-			return f;
-		}
-		float maxFall = 6F;
-		if (f < maxFall) {
-			f /= 2F;
-			return f;
-		}
-		int i = MathHelper.floor_double(player.posX);
-		int j = MathHelper.floor_double(player.boundingBox.minY - 1.1F + player.motionY);
-		int k = MathHelper.floor_double(player.posZ);
-		Block b = player.worldObj.getBlock(i, j, k);
-		if (b == Blocks.fence || b == Blocks.nether_brick_fence || isOnCertainBlock(Blocks.leaves) || isOnCertainBlock(FRCommonProxy.barWood) || player.isInWater()) {
-			f /= 2F;
-			return f;
-		}
-		if (!isMovingForwards()) {
-			f *= 0.8F;
-			return f;
-		}
-		float f1 = 1.0F;
-		double d = -MathHelper.sin((player.rotationYaw / 180F) * 3.141593F) * f1;
-		double d1 = MathHelper.cos((player.rotationYaw / 180F) * 3.141593F) * f1;
-        roll.start();
-		player.setVelocity(d, 0, d1);
-		player.addExhaustion(0.3F);
-		f /= 2F;
-		return f;
+	public MoveRoll getRoll() {
+		return roll;
 	}
 
 	public void setMove(Move move) {
@@ -364,60 +325,6 @@ public class FreerunPlayer implements IExtendedEntityProperties{
 		return player.worldObj.func_147447_a(vec3, vec31, par3, !par3, false);
 	}
 
-	private static void addAllClimableBlocks() {
-        climbableBlocks = new ArrayList<Block>();
-        climbableInside = new ArrayList<Block>();
-		climbableBlocks.clear();
-		climbableInside.clear();
-		//BESIDE
-		climbableBlocks.add(Blocks.leaves);
-		climbableBlocks.add(Blocks.dispenser);
-		climbableBlocks.add(Blocks.noteblock);
-		climbableBlocks.add(Blocks.bed);
-		climbableBlocks.add(Blocks.double_wooden_slab);
-		climbableBlocks.add(Blocks.wooden_slab);
-		climbableBlocks.add(Blocks.bookshelf);
-		climbableBlocks.add(Blocks.farmland);
-		climbableBlocks.add(Blocks.mob_spawner);
-		climbableBlocks.add(Blocks.chest);
-		climbableBlocks.add(Blocks.crafting_table);
-		climbableBlocks.add(Blocks.furnace);
-		climbableBlocks.add(Blocks.lit_furnace);
-		climbableBlocks.add(Blocks.wall_sign);
-		climbableBlocks.add(Blocks.standing_sign);
-		climbableBlocks.add(Blocks.wooden_door);
-		climbableBlocks.add(Blocks.iron_door);
-		climbableBlocks.add(Blocks.piston);
-		climbableBlocks.add(Blocks.sticky_piston);
-		climbableBlocks.add(Blocks.piston_extension);
-		climbableBlocks.add(Blocks.stone_stairs);
-		climbableBlocks.add(Blocks.jukebox);
-		climbableBlocks.add(Blocks.pumpkin);
-		climbableBlocks.add(Blocks.lit_pumpkin);
-		climbableBlocks.add(Blocks.fence);
-		climbableBlocks.add(Blocks.trapdoor);
-		climbableBlocks.add(Blocks.nether_brick_fence);
-		climbableBlocks.add(Blocks.nether_brick_stairs);
-		climbableBlocks.add(Blocks.stone_brick_stairs);
-		climbableBlocks.add(Blocks.brick_stairs);
-		climbableBlocks.add(Blocks.fence_gate);
-		climbableBlocks.add(Blocks.trapped_chest);
-		climbableBlocks.add(Blocks.enchanting_table);
-		if (FRCommonProxy.barWood != null) {
-			climbableBlocks.add(FRCommonProxy.barWood);
-		}
-		//INSIDE
-		climbableInside.add(Blocks.stone_button);
-		climbableInside.add(Blocks.wooden_button);
-		climbableInside.add(Blocks.iron_bars);
-		if (FRCommonProxy.edgeWood != null) {
-			climbableInside.add(FRCommonProxy.edgeWood);
-		}
-		if (FRCommonProxy.edgeStone != null) {
-			climbableInside.add(FRCommonProxy.edgeStone);
-		}
-	}
-
 	private void handleFreerunning() {
 		if (isTooHungry()) {
 			stopMove();
@@ -442,52 +349,19 @@ public class FreerunPlayer implements IExtendedEntityProperties{
 					player.motionY = vec3d.yCoord - player.posY;
 					player.motionZ = vec3d.zCoord - player.posZ;
 					int lookdirection = situation.lookDirection;
-					if (isMovingForwards()) {
-						float y = situation.canPushUp();
-						if (situation.canJumpUpBehind()) {
-							upBehind.performMove(lookdirection);
-							player.addExhaustion(0.3F);
-						} else if (situation.canClimbUp()) {
-							climbUp.performMove(lookdirection);
-						} else if (y != 0) {
-							pushUp.performMove(lookdirection);
-							player.addExhaustion(0.3F);
-						}
-					} else if (isMovingBackwards()) {
-						if (situation.canClimbDown()) {
-							climbDown.performMove(lookdirection);
-						}
-					} else if (isMovingLeft()) {
-						if (situation.canClimbLeft()) {
-							climbLeft.performMove(lookdirection);
-						}/*
-						 * else if (situation.canClimbAroundEdgeLeft()) {
-						 * FR_Move.climbAroundLeft.performMove(player,
-						 * lookdirection); }
-						 */
-					} else if (isMovingRight()) {
-						if (situation.canClimbRight()) {
-							climbRight.performMove(lookdirection);
-						}/*
-						 * else if (situation.canClimbAroundEdgeRight()) {
-						 * FR_Move.climbAroundRight.performMove(player,
-						 * lookdirection); }
-						 */
-					}
+                    List<Move> moves = getMovesHangingStill();
+                    for(Move mvoe:moves) {
+                        if (mvoe!=null && mvoe.canPerform(situation)) {
+                            mvoe.performMove(lookdirection);
+                            break;
+                        }
+                    }
 				}
 				if (freeRunning && EntitiesClassAccess.isJumping(player) && isHangingStill()) {
 					if (isMovingForwards() && !isWallrunning()) {
 						ejectUp.performMove(situation.lookDirection);
-						player.addExhaustion(0.3F);
-					} else if (isMovingLeft()) {
-						ejectLeft.performMove(situation.lookDirection);
-						player.addExhaustion(0.3F);
-					} else if (isMovingRight()) {
-						ejectRight.performMove(situation.lookDirection);
-						player.addExhaustion(0.3F);
 					} else {
-						ejectBack.performMove(situation.lookDirection);
-						player.addExhaustion(0.3F);
+						getEject().performMove(situation.lookDirection);
 					}
 				}
 				return;
@@ -499,16 +373,7 @@ public class FreerunPlayer implements IExtendedEntityProperties{
 				if (!player.onGround) {
 					if (FRCommonProxy.properties.enableWallKick && isWallrunning() && EntitiesClassAccess.isJumping(player) && move.getAnimationProgress() > 0.3F) {
 						stopMove();
-						if (isMovingLeft()) {
-							ejectLeft.performMove(situation.lookDirection, 0.8F);
-							player.addExhaustion(0.3F);
-						} else if (isMovingRight()) {
-							ejectRight.performMove(situation.lookDirection, 0.8F);
-							player.addExhaustion(0.3F);
-						} else {
-							ejectBack.performMove(situation.lookDirection, 0.8F);
-							player.addExhaustion(0.3F);
-						}
+						getEject().performMove(situation.lookDirection, 0.8F);
 					}
 					return;
 				}
@@ -527,8 +392,7 @@ public class FreerunPlayer implements IExtendedEntityProperties{
 					if (j == 1 && !EntitiesClassAccess.isJumping(player)) {
                         player.jump();
 					} else if (j > 1 || canWallrun()) {
-						wallrun.performMove(getLookDirection(), 1.8F);
-						player.addExhaustion(0.8F);
+						wallrun.performMove(getLookDirection());
 					}
 				}
 			}
@@ -542,7 +406,30 @@ public class FreerunPlayer implements IExtendedEntityProperties{
 		}
 	}
 
-	private void handleMoves() {
+    private List<Move> getMovesHangingStill() {
+        if(isMovingForwards()){
+            return Arrays.asList(upBehind, climbUp, pushUp);
+        }else if(isMovingBackwards()){
+            return Arrays.asList((Move)climbDown);
+        }else if(isMovingLeft()){
+            return Arrays.asList((Move)climbLeft, climbAroundLeft);
+        }else if(isMovingRight()){
+            return Arrays.asList((Move)climbRight, climbAroundRight);
+        }
+        return new ArrayList<Move>(0);
+    }
+
+    private MoveEject getEject(){
+        if (isMovingLeft()) {
+            return ejectLeft;
+        } else if (isMovingRight()) {
+            return ejectRight;
+        } else {
+            return ejectBack;
+        }
+    }
+
+    private void handleMoves() {
         if (!paused) {
             if (move != null) {
                 move.updateMove();
@@ -553,9 +440,6 @@ public class FreerunPlayer implements IExtendedEntityProperties{
         } else {
             paused = false;
         }
-	}
-
-	private void handleTimers() {
 	}
 
     @Override

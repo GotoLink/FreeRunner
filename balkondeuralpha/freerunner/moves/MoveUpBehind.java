@@ -1,6 +1,7 @@
 package balkondeuralpha.freerunner.moves;
 
 import balkondeuralpha.freerunner.FreerunPlayer;
+import balkondeuralpha.freerunner.Situation;
 
 public class MoveUpBehind extends Move{
     private final float	limitSpeed	= 0.5F;
@@ -80,6 +81,17 @@ public class MoveUpBehind extends Move{
 		}
 		doMoves();
 	}
+
+    @Override
+    public boolean canPerform(Situation situation){
+        return situation.hasEdgeUpBehind();
+    }
+
+    @Override
+    public void performMove(int look){
+        super.performMove(look);
+        getPlayer().addExhaustion(0.3F);
+    }
 	
 	@Override
 	public void moveDone(){

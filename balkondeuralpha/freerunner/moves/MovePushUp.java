@@ -1,6 +1,7 @@
 package balkondeuralpha.freerunner.moves;
 
 import balkondeuralpha.freerunner.FreerunPlayer;
+import balkondeuralpha.freerunner.Situation;
 
 public class MovePushUp extends Move{
     private float		yLimit;
@@ -79,6 +80,17 @@ public class MovePushUp extends Move{
 		yLimit = y;
 		performMove(lookdirection);
 	}
+
+    @Override
+    public boolean canPerform(Situation situation){
+        return situation.canPushUp()!=0;
+    }
+
+    @Override
+    public void performMove(int look){
+        super.performMove(look);
+        getPlayer().addExhaustion(0.3F);
+    }
 	
 	@Override
 	public float getAnimationProgress()

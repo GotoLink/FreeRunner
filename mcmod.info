@@ -1,0 +1,17 @@
+[
+{
+  "modid": "freerun",
+  "name": "Free Runner Mod",
+  "description": "",
+  "version": $version,
+  "credits": "",
+  "logoFile": "",
+  "mcversion": $mcversion,
+  "url": "http://www.minecraftforum.net/topic/843540-",
+  "updateUrl": "",
+  "authorList": ["balkondeuralpha","GotoLink"],
+  "parent":"",
+  "screenshots": [],
+  "dependencies": []
+}
+]

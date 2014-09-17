@@ -3,6 +3,9 @@
 
 !/assets/*
 !/balkondeuralpha/*
+!/net/*
+!/META-INF/*
+!mcmod.info
 !/gradle/*
 !build.gradle
 !gradle*
