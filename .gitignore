@@ -1,11 +1,10 @@
-*.*
 /*
 
-!/assets/*
-!/balkondeuralpha/*
-!/net/*
+!/assets/
+!/balkondeuralpha/
+!/net/
 !/META-INF/*
 !mcmod.info
-!/gradle/*
+!/gradle/
 !build.gradle
 !gradle*
