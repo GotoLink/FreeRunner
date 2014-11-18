@@ -31,13 +31,13 @@ public class FRCommonProxy {
 		if (properties.enableEdgeWood) {
 			edgeWood = new BlockEdge().setHardness(1.0F).setResistance(5F).setStepSound(Block.soundTypeWood).setBlockName("edgeWood")
 					.setBlockTextureName("freerun:wood-edge");
-			GameRegistry.registerBlock(edgeWood, "Wooden Edge");
+			GameRegistry.registerBlock(edgeWood, "WoodenEdge");
 			GameRegistry.addRecipe(new ItemStack(edgeWood, 2), "#X", '#', Blocks.log, 'X', Items.stick);
 		}
 		if (properties.enableEdgeStone) {
 			edgeStone = new BlockEdge().setHardness(2.0F).setResistance(10F).setStepSound(Block.soundTypeStone).setBlockName("edgeStone")
 					.setBlockTextureName("freerun:stone-edge");
-			GameRegistry.registerBlock(edgeStone, "Stone Edge");
+			GameRegistry.registerBlock(edgeStone, "StoneEdge");
 			GameRegistry.addRecipe(new ItemStack(edgeStone, 2), "#X", '#', Blocks.stone, 'X', Blocks.cobblestone);
 		}
 		if (properties.enableHayStack) {
@@ -49,12 +49,12 @@ public class FRCommonProxy {
 		}
 		if (properties.enableBarWood) {
 			barWood = new BlockWoodBar().setHardness(2.0F).setResistance(5F).setStepSound(Block.soundTypeWood).setBlockName("barWood").setBlockTextureName("planks");
-			GameRegistry.registerBlock(barWood, "Wooden Bar");
+			GameRegistry.registerBlock(barWood, "WoodenBar");
 			GameRegistry.addRecipe(new ItemStack(barWood, 4), "###", '#', Blocks.log);
 		}
 		if (properties.enableClimbingGlove) {
 			climbGlove = new Item().setMaxStackSize(1).setUnlocalizedName("climbGlove").setTextureName("freerun:climbglove").setCreativeTab(CreativeTabs.tabTools);
-			GameRegistry.registerItem(climbGlove, "Climbing Glove");
+			GameRegistry.registerItem(climbGlove, "ClimbingGlove");
 			GameRegistry.addRecipe(new ItemStack(climbGlove, 1), " # ", "#X#", '#', Items.leather, 'X', Items.iron_ingot);
 		}
 		PlayerEventHandler playerEvent = new PlayerEventHandler();
